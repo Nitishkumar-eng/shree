@@ -3,17 +3,5 @@
   "buildCommand": "prisma generate && next build",
   "installCommand": "npm install",
   "outputDirectory": ".next",
-  "regions": ["sin1"],
-  "env": {
-    "DATABASE_URL": "@database_url",
-    "NEXTAUTH_SECRET": "@nextauth_secret",
-    "NEXTAUTH_URL": "@nextauth_url",
-    "RAZORPAY_KEY_ID": "@razorpay_key_id",
-    "RAZORPAY_KEY_SECRET": "@razorpay_key_secret",
-    "NEXT_PUBLIC_RAZORPAY_KEY_ID": "@next_public_razorpay_key_id",
-    "GOOGLE_CLIENT_ID": "@google_client_id",
-    "GOOGLE_CLIENT_SECRET": "@google_client_secret",
-    "NEXT_PUBLIC_GOOGLE_CLIENT_ID": "@next_public_google_client_id",
-    "SELLER_GSTIN": "@seller_gstin"
-  }
+  "regions": ["sin1"]
 }

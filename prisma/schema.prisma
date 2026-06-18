@@ -9,6 +9,7 @@ generator client {
 enum Role {
   CUSTOMER
   ADMIN
+  SHIPPER
 }
 
 enum OrderStatus {
@@ -143,20 +144,30 @@ model WishlistItem {
 }
 
 model Order {
-  id         String      @id @default(uuid())
-  userId     String
-  user       User        @relation(fields: [userId], references: [id])
-  addressId  String
-  address    Address     @relation(fields: [addressId], references: [id])
-  status     OrderStatus @default(PENDING)
-  subtotal   Float       // Sum of taxable values (pre-tax total)
-  gstAmount  Float       // Total GST calculated
-  discount   Float       @default(0)
-  delivery   Float       @default(0)
-  total      Float       // Net total (subtotal + gstAmount + delivery - discount)
-  couponCode String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  addressId       String
+  address         Address     @relation(fields: [addressId], references: [id])
+  status          OrderStatus @default(PENDING)
+  subtotal        Float
+  gstAmount       Float
+  discount        Float       @default(0)
+  delivery        Float       @default(0)
+  total           Float
+  couponCode      String?
+  // Location tracking (from customer's browser at checkout)
+  latitude        Float?
+  longitude       Float?
+  locationCity    String?
+  locationState   String?
+  // Shipping
+  trackingNumber  String?
+  shippingNotes   String?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
   items      OrderItem[]
   payments   Payment[]

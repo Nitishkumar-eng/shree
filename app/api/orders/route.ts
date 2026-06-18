@@ -6,11 +6,16 @@ import { calculateGst } from "@/lib/gst";
 import { checkPincode } from "@/lib/pincodes";
 import * as z from "zod";
 import { mockDbStore } from "@/lib/mockDbStore";
+import { sendOrderConfirmationEmail, sendAdminOrderNotification } from "@/lib/emails";
 
 const createOrderSchema = z.object({
   addressId: z.string(),
   couponCode: z.string().optional(),
   paymentMethod: z.enum(["ONLINE", "COD", "CARD"]),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  locationCity: z.string().optional(),
+  locationState: z.string().optional(),
 });
 
 // GET: Fetch customer orders
@@ -74,6 +79,12 @@ export async function POST(req: Request) {
     reqCouponCode = couponCode || null;
     const paymentMethod = parsed.paymentMethod;
     reqPaymentMethod = paymentMethod;
+    const locationData = {
+      latitude: parsed.latitude,
+      longitude: parsed.longitude,
+      locationCity: parsed.locationCity,
+      locationState: parsed.locationState,
+    };
 
     // Get the address and verify it belongs to user
     const address = await db.address.findFirst({
@@ -190,6 +201,12 @@ export async function POST(req: Request) {
           delivery: Math.round(deliveryCharge * 100) / 100,
           total: Math.round(finalTotal * 100) / 100,
           couponCode: validCoupon?.code || null,
+          ...(locationData.latitude ? {
+            latitude: locationData.latitude,
+            longitude: locationData.longitude,
+            locationCity: locationData.locationCity,
+            locationState: locationData.locationState,
+          } : {}),
         },
       });
 
@@ -248,6 +265,13 @@ export async function POST(req: Request) {
 
       return newOrder;
     });
+
+    // Fire admin + user emails async (don't block response)
+    const orderId = order.id;
+    Promise.all([
+      sendOrderConfirmationEmail(orderId).catch(e => console.error("User email failed:", e)),
+      sendAdminOrderNotification(orderId).catch(e => console.error("Admin email failed:", e)),
+    ]);
 
     return NextResponse.json(order, { status: 201 });
   } catch (error) {

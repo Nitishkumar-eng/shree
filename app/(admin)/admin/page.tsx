@@ -2,23 +2,29 @@
 
 import React, { useState, useEffect } from "react";
 import { formatINR } from "@/lib/gst";
-import { 
-  IndianRupee, 
-  ShoppingBag, 
-  Users, 
+import {
+  IndianRupee,
+  ShoppingBag,
+  Users,
   AlertTriangle,
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  Package,
+  MapPin,
 } from "lucide-react";
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
+
 
 interface Metrics {
   totalRevenue: number;
@@ -89,11 +95,11 @@ export default function AdminDashboard() {
   return (
     <div className="flex flex-col gap-8">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          Dashboard Overview
+      <div style={{ borderBottom: '2px solid #fbcfe8', paddingBottom: '16px' }}>
+        <h1 style={{ fontFamily: 'Georgia,serif', color: '#e11d48', fontSize: '28px', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+          🌸 Dewkit Admin Dashboard
         </h1>
-        <p className="text-xs text-slate-500 mt-1">Platform analytics, revenue chart reporting, and inventory warnings</p>
+        <p style={{ color: '#9c4060', fontSize: '13px', margin: '4px 0 0' }}>Real-time skincare store analytics · Revenue · Inventory · Orders</p>
       </div>
 
       {/* Metrics Cards Grid */}
@@ -167,19 +173,19 @@ export default function AdminDashboard() {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#e11d48" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#e11d48" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
-                <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} />
-                <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v}`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#fce7f3" vertical={false} />
+                <XAxis dataKey="name" stroke="#be185d" fontSize={10} tickLine={false} />
+                <YAxis stroke="#be185d" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v}`} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#0f172a", borderColor: "#1f2937", borderRadius: "12px" }}
-                  labelStyle={{ color: "#9ca3af", fontSize: "10px" }}
-                  itemStyle={{ color: "#ffffff", fontSize: "12px", fontWeight: "bold" }}
+                  contentStyle={{ backgroundColor: "#fff0f6", borderColor: "#fbcfe8", borderRadius: "12px" }}
+                  labelStyle={{ color: "#be185d", fontSize: "10px", fontWeight: 700 }}
+                  itemStyle={{ color: "#e11d48", fontSize: "12px", fontWeight: "bold" }}
                 />
-                <Area type="monotone" dataKey="Revenue" stroke="#6366f1" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRevenue)" />
+                <Area type="monotone" dataKey="Revenue" stroke="#e11d48" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRevenue)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

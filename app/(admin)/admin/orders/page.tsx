@@ -29,6 +29,11 @@ interface Order {
   discount: number;
   total: number;
   createdAt: string;
+  latitude?: number;
+  longitude?: number;
+  locationCity?: string;
+  locationState?: string;
+  trackingNumber?: string;
   user: {
     name: string;
     email: string;
@@ -222,6 +227,25 @@ export default function AdminOrdersPage() {
                     <span className="flex items-center gap-1">
                       <MapPin size={12} className="text-slate-600" /> Pincode: {order.address.pincode} ({order.address.state})
                     </span>
+                    {order.latitude && (
+                      <>
+                        <span className="text-slate-700">|</span>
+                        <a
+                          href={`https://www.google.com/maps?q=${order.latitude},${order.longitude}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ color: '#e11d48', fontWeight: 700, fontSize: '11px', display: 'flex', alignItems: 'center', gap: '3px' }}
+                        >
+                          <MapPin size={11} /> {order.locationCity || 'View Location'} 📍
+                        </a>
+                      </>
+                    )}
+                    {order.trackingNumber && (
+                      <>
+                        <span className="text-slate-700">|</span>
+                        <span style={{ color: '#1e40af', fontWeight: 700, fontSize: '11px' }}>🚚 {order.trackingNumber}</span>
+                      </>
+                    )}
                   </div>
 
                   {/* Item descriptions */}

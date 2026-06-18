@@ -4,12 +4,21 @@ import { NextResponse } from "next/server";
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
-    const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
-    const isAdminApiRoute = req.nextUrl.pathname.startsWith("/api/admin");
+    const path = req.nextUrl.pathname;
+
+    const isAdminRoute = path.startsWith("/admin");
+    const isAdminApiRoute = path.startsWith("/api/admin");
+    const isShipperRoute = path.startsWith("/shipper");
+    const isShipperApiRoute = path.startsWith("/api/shipper");
 
     if (isAdminRoute || isAdminApiRoute) {
       if (token?.role !== "ADMIN") {
-        // Redirect non-admin users to the homepage
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+    }
+
+    if (isShipperRoute || isShipperApiRoute) {
+      if (token?.role !== "SHIPPER" && token?.role !== "ADMIN") {
         return NextResponse.redirect(new URL("/", req.url));
       }
     }
@@ -28,5 +37,7 @@ export const config = {
     "/wishlist/:path*",
     "/admin/:path*",
     "/api/admin/:path*",
+    "/shipper/:path*",
+    "/api/shipper/:path*",
   ],
 };

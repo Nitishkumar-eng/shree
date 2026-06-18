@@ -1,254 +1,267 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   DEWKIT — Rose Petal Design System
+   Primary: Rose-600 (#e11d48) | Blush: #fdf2f8 | Pearl: #fff0f6
+   ============================================================ */
+
 :root {
-  --background: 35 24% 90%; /* Deeper Warm Linen Beige `#e7dfcc` */
-  --foreground: 18 16% 14%; /* Deep Warm Espresso */
-  
-  --card: 32 26% 96%; /* Soft Sand Cream `#f7f4ea` */
-  --card-foreground: 18 16% 14%;
-  
-  --popover: 32 26% 96%;
-  --popover-foreground: 18 16% 14%;
-  
-  --primary: 4 72% 43%; /* Rich Terracotta / Brick Red `#bf2b15` */
-  --primary-foreground: 32 26% 96%;
-  
-  --secondary: 35 18% 85%; /* Sand Muted */
-  --secondary-foreground: 18 16% 14%;
-  
-  --muted: 35 18% 85%;
-  --muted-foreground: 18 10% 45%;
-  
-  --accent: 4 72% 43%; /* Muted Red Accent */
-  --accent-foreground: 32 26% 96%;
-  
-  --destructive: 0 84.2% 60.2%;
+  --background: 330 60% 97%;        /* Soft blush #fdf2f8 */
+  --foreground: 330 25% 15%;        /* Deep rose-dark */
+
+  --card: 330 80% 99%;              /* Pearl white #fff0f6 */
+  --card-foreground: 330 25% 15%;
+
+  --popover: 330 80% 99%;
+  --popover-foreground: 330 25% 15%;
+
+  --primary: 347 87% 44%;           /* Rose-600 #e11d48 */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 325 40% 92%;         /* Dusty pink */
+  --secondary-foreground: 330 25% 20%;
+
+  --muted: 325 35% 93%;
+  --muted-foreground: 330 18% 50%;
+
+  --accent: 330 70% 88%;            /* Petal pink */
+  --accent-foreground: 347 87% 35%;
+
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
-  
-  --border: 35 14% 78%; /* Soft Tan Clay Outline */
-  --input: 35 14% 78%;
-  --ring: 4 72% 43%;
-  
-  --radius: 0.85rem;
+
+  --border: 325 35% 86%;
+  --input: 325 35% 86%;
+  --ring: 347 87% 44%;
+
+  --radius: 1rem;
 }
 
+/* ── Base ─────────────────────────────────────────────────── */
 body {
   color: hsl(var(--foreground));
   background: hsl(var(--background));
-  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   overflow-x: hidden;
   min-height: 100vh;
 }
 
-/* ==========================================================================
-   Light Beige-Red Minimal Theme Overrides
-   ========================================================================== */
-
-/* Headings & Text */
-.text-white, 
-h1.text-white, 
-h2.text-white, 
-h3.text-white, 
-h4.text-white, 
-p.text-white,
-span.text-white {
-  color: #2b221e !important; /* Rich Dark Brown-Earth */
+h1, h2, h3 {
+  font-family: 'Playfair Display', serif;
+  letter-spacing: -0.01em;
 }
 
-/* Force White text color on primary elements, tags and buttons */
-button.bg-indigo-600, 
+/* ── Dewkit Brand Gradient ────────────────────────────────── */
+.text-gradient {
+  background: linear-gradient(135deg, #e11d48 0%, #be185d 40%, #9d174d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-gradient {
+  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, #fff0f6 0%, #fdf2f8 40%, #fce7f3 100%);
+}
+
+/* ── Glass Cards (Rose Edition) ───────────────────────────── */
+.glass-panel {
+  background: rgba(255, 240, 246, 0.88) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(225, 29, 72, 0.12) !important;
+  box-shadow: 0 4px 24px rgba(225, 29, 72, 0.04) !important;
+}
+
+.glass-card {
+  background: linear-gradient(135deg, rgba(255, 240, 246, 0.95) 0%, rgba(253, 242, 248, 0.98) 100%) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(225, 29, 72, 0.10) !important;
+  box-shadow: 0 8px 32px rgba(225, 29, 72, 0.06) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(225, 29, 72, 0.28) !important;
+  box-shadow: 0 16px 48px rgba(225, 29, 72, 0.12) !important;
+  transform: translateY(-3px);
+}
+
+/* ── Indigo → Rose Remapping ─────────────────────────────── */
+.bg-indigo-600 { background-color: #e11d48 !important; }
+.bg-indigo-600:hover { background-color: #be185d !important; }
+.bg-indigo-700 { background-color: #be185d !important; }
+.bg-indigo-800 { background-color: #9d174d !important; }
+
+.text-indigo-400,
+.text-indigo-500,
+.text-indigo-600 { color: #e11d48 !important; }
+
+.hover\:text-indigo-400:hover,
+.hover\:text-indigo-300:hover,
+.group-hover\:text-indigo-400 { color: #e11d48 !important; }
+
+.border-indigo-500,
+.border-indigo-600 { border-color: #e11d48 !important; }
+
+.ring-indigo-500,
+.ring-indigo-600 { --tw-ring-color: #e11d48 !important; }
+
+/* ── Slate → Pearl/Blush Remapping ───────────────────────── */
+.bg-slate-950 { background-color: #fff0f6 !important; }
+.bg-slate-900 { background-color: #fdf2f8 !important; }
+.bg-slate-900\/40 { background-color: rgba(253,242,248,0.4) !important; }
+.bg-slate-900\/20 { background-color: rgba(253,242,248,0.2) !important; }
+.bg-slate-900\/30 { background-color: rgba(253,242,248,0.3) !important; }
+.bg-slate-950\/80 { background-color: rgba(255,240,246,0.85) !important; }
+.bg-slate-950\/40 { background-color: rgba(255,240,246,0.45) !important; }
+.bg-slate-900\/95 { background-color: rgba(253,242,248,0.95) !important; }
+.bg-slate-800 { background-color: #fce7f3 !important; }
+.bg-slate-800\/80 { background-color: rgba(252,231,243,0.8) !important; }
+
+/* ── Text Remapping → Rose-tinted ───────────────────────── */
+.text-white,
+h1.text-white, h2.text-white, h3.text-white,
+h4.text-white, p.text-white, span.text-white {
+  color: #1f0a10 !important;
+}
+
+.text-slate-100 { color: #1f0a10 !important; }
+.text-slate-200 { color: #3b1121 !important; }
+.text-slate-300 { color: #5c2033 !important; }
+.text-slate-400 { color: #7c3048 !important; }
+.text-slate-500 { color: #9c4060 !important; }
+.text-slate-600 { color: #b96080 !important; }
+
+/* ── Borders → Rose Tan ──────────────────────────────────── */
+.border-slate-800 { border-color: #fbcfe8 !important; }
+.border-slate-900 { border-color: #f9a8d4 !important; }
+.border-slate-900\/60 { border-color: rgba(249,168,212,0.6) !important; }
+.border-slate-800\/80 { border-color: rgba(251,207,232,0.8) !important; }
+
+/* ── Buttons with white text on rose ────────────────────── */
+button.bg-indigo-600,
 button.bg-indigo-700,
-button.bg-indigo-800,
-button.bg-slate-950,
-button.bg-black,
+button.bg-rose-500,
+button.bg-rose-600,
 a.bg-indigo-600,
 a.bg-indigo-700,
-.bg-indigo-600,
-.bg-indigo-700,
-.bg-indigo-600 *, 
+.bg-indigo-600 *,
 .bg-indigo-700 *,
-.bg-red-600,
-.bg-red-600 *,
-.bg-rose-500,
-.bg-rose-500 *,
+.bg-rose-600 *,
 .glow-btn,
 .glow-btn * {
   color: #ffffff !important;
 }
 
-/* Accent Mappings (Indigo/Blue -> Premium Brick Red) */
-.bg-indigo-600 {
-  background-color: #bf2b15 !important; /* Premium Red */
-}
-.bg-indigo-600:hover {
-  background-color: #a4210f !important;
-}
-.bg-indigo-700 {
-  background-color: #a4210f !important;
-}
-.bg-indigo-800 {
-  background-color: #8a1708 !important;
-}
+/* ── Hover States ────────────────────────────────────────── */
+.hover\:bg-slate-900:hover { background-color: #fce7f3 !important; }
+.hover\:text-white:hover { color: #1f0a10 !important; }
+a.text-slate-300:hover, button.text-slate-300:hover { color: #e11d48 !important; }
 
-.text-indigo-400, 
-.text-indigo-500,
-.text-indigo-600 {
-  color: #bf2b15 !important;
-}
-.hover\:text-indigo-400:hover,
-.hover\:text-indigo-300:hover,
-.group-hover\:text-indigo-400 {
-  color: #bf2b15 !important;
-}
-
-/* Background overrides mapped to Beige Palette */
-.bg-slate-950 {
-  background-color: #f7f4ea !important; /* Soft Sand Cream */
-}
-.bg-slate-900 {
-  background-color: #e7dfcc !important; /* Warm Linen Beige */
-}
-.bg-slate-900\/40 {
-  background-color: rgba(231, 223, 204, 0.4) !important;
-}
-.bg-slate-900\/20 {
-  background-color: rgba(231, 223, 204, 0.2) !important;
-}
-.bg-slate-900\/30 {
-  background-color: rgba(231, 223, 204, 0.3) !important;
-}
-.bg-slate-950\/80 {
-  background-color: rgba(247, 244, 234, 0.85) !important;
-}
-.bg-slate-950\/40 {
-  background-color: rgba(247, 244, 234, 0.45) !important;
-}
-.bg-slate-900\/95 {
-  background-color: rgba(247, 244, 234, 0.95) !important;
-}
-.bg-slate-800 {
-  background-color: #ded6c0 !important; /* Clay Tan */
-}
-.bg-slate-800\/80 {
-  background-color: rgba(222, 214, 192, 0.8) !important;
-}
-
-/* Border Overrides to Clay Tan */
-.border-slate-800 {
-  border-color: #d1c9b4 !important; /* Clay tan outlines */
-}
-.border-slate-900 {
-  border-color: #c4bcab !important;
-}
-.border-slate-900\/60 {
-  border-color: rgba(196, 188, 171, 0.6) !important;
-}
-.border-slate-800\/80 {
-  border-color: rgba(209, 201, 180, 0.8) !important;
-}
-
-/* Text tone adjustments to warm cocoa/charcoal earth tones */
-.text-slate-100 {
-  color: #1a1512 !important;
-}
-.text-slate-200 {
-  color: #2e2621 !important;
-}
-.text-slate-300 {
-  color: #453b35 !important;
-}
-.text-slate-400 {
-  color: #5d5149 !important;
-}
-.text-slate-500 {
-  color: #7a6e65 !important;
-}
-.text-slate-600 {
-  color: #9c8e84 !important;
-}
-
-/* Glassmorphism panels styled for Warm Beige Mode */
-.glass-panel {
-  background: rgba(247, 244, 234, 0.85) !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(209, 201, 180, 0.7) !important;
-  box-shadow: 0 4px 24px 0 rgba(70, 60, 50, 0.02) !important;
-}
-
-.glass-card {
-  background: linear-gradient(135deg, rgba(247, 244, 234, 0.9) 0%, rgba(231, 223, 204, 0.95) 100%) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(209, 201, 180, 0.6) !important;
-  box-shadow: 0 8px 32px 0 rgba(70, 60, 50, 0.04) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.glass-card:hover {
-  border-color: rgba(191, 43, 21, 0.25) !important;
-  box-shadow: 0 12px 40px 0 rgba(191, 43, 21, 0.08) !important;
-  transform: translateY(-2px);
-}
-
-/* Inputs & Interactive Controls */
+/* ── Inputs ──────────────────────────────────────────────── */
 input, select, textarea {
   background-color: #ffffff !important;
-  color: #2b221e !important;
-  border-color: #c4bcab !important;
+  color: #3b1121 !important;
+  border-color: #f9a8d4 !important;
 }
 input:focus, select:focus, textarea:focus {
-  border-color: #bf2b15 !important;
-  box-shadow: 0 0 0 1px #bf2b15 !important;
+  border-color: #e11d48 !important;
+  box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.15) !important;
+  outline: none;
 }
 
-/* Interactive Actions & Links */
-a.text-slate-300:hover, 
-button.text-slate-300:hover {
-  color: #bf2b15 !important;
+/* ── Glow Button (rose shimmer) ─────────────────────────── */
+.glow-btn {
+  position: relative;
+  overflow: hidden;
 }
-.hover\:bg-slate-900:hover {
-  background-color: #ded6c0 !important;
-}
-.hover\:text-white:hover {
-  color: #2b221e !important;
-}
-
-/* Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: rgba(231, 223, 204, 0.5);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(122, 110, 101, 0.3);
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(122, 110, 101, 0.5);
-}
-
-/* Brand Accent Gradients (Terracotta to Brick Red) */
-.text-gradient {
-  background: linear-gradient(135deg, #bf2b15 0%, #701406 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
 .glow-btn::after {
   content: '';
   position: absolute;
   top: 0; left: -100%;
   width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: 0.5s;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  transition: 0.55s ease;
 }
-.glow-btn:hover::after {
-  left: 100%;
+.glow-btn:hover::after { left: 100%; }
+
+/* ── Scrollbar (Rose) ────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(252, 231, 243, 0.4); }
+::-webkit-scrollbar-thumb { background: rgba(225,29,72,0.2); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(225,29,72,0.4); }
+
+/* ── Dewkit Product Card ─────────────────────────────────── */
+.product-card {
+  background: #fff0f6;
+  border: 1px solid rgba(225,29,72,0.08);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 12px rgba(225,29,72,0.04);
+}
+.product-card:hover {
+  border-color: rgba(225,29,72,0.22);
+  box-shadow: 0 12px 40px rgba(225,29,72,0.10);
+  transform: translateY(-4px);
+}
+
+/* ── Badge Styles ────────────────────────────────────────── */
+.badge-rose {
+  background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+  color: #be185d;
+  border: 1px solid rgba(190,24,93,0.2);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── Section Divider ─────────────────────────────────────── */
+.rose-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #f9a8d4, #e11d48, #f9a8d4, transparent);
+  border: none;
+  margin: 2rem 0;
+  opacity: 0.4;
+}
+
+/* ── Status Badges ───────────────────────────────────────── */
+.status-pending    { background:#fef9c3; color:#854d0e; border:1px solid #fde68a; border-radius:999px; padding:2px 10px; font-size:12px; font-weight:600; }
+.status-confirmed  { background:#dcfce7; color:#166534; border:1px solid #bbf7d0; border-radius:999px; padding:2px 10px; font-size:12px; font-weight:600; }
+.status-shipped    { background:#dbeafe; color:#1e40af; border:1px solid #bfdbfe; border-radius:999px; padding:2px 10px; font-size:12px; font-weight:600; }
+.status-delivered  { background:#d1fae5; color:#065f46; border:1px solid #a7f3d0; border-radius:999px; padding:2px 10px; font-size:12px; font-weight:600; }
+.status-cancelled  { background:#fee2e2; color:#991b1b; border:1px solid #fecaca; border-radius:999px; padding:2px 10px; font-size:12px; font-weight:600; }
+
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
+
+.shimmer-bg {
+  background: linear-gradient(90deg, #fce7f3 25%, #fbcfe8 50%, #fce7f3 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }

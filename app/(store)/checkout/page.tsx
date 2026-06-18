@@ -78,6 +78,9 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState("");
   const [couponDiscount, setCouponDiscount] = useState(0);
 
+  // Location tracking (for admin)
+  const [location, setLocation] = useState<{ latitude: number; longitude: number; city?: string; state?: string } | null>(null);
+
   // ─── UPI Modal States ───────────────────────────────────────
   const [showUpiModal, setShowUpiModal] = useState(false);
   const [upiId, setUpiId] = useState("");
@@ -128,6 +131,33 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (session) loadCheckoutData();
   }, [session]);
+
+  // Silent location detection for admin order tracking
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          try {
+            // Reverse geocode using open API (no key needed)
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+            if (res.ok) {
+              const data = await res.json();
+              const city = data.address?.city || data.address?.town || data.address?.village || data.address?.county || "";
+              const state = data.address?.state || "";
+              setLocation({ latitude, longitude, city, state });
+            } else {
+              setLocation({ latitude, longitude });
+            }
+          } catch {
+            setLocation({ latitude, longitude });
+          }
+        },
+        () => {}, // Silently fail if denied
+        { timeout: 8000, enableHighAccuracy: false }
+      );
+    }
+  }, []);
 
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,7 +219,17 @@ export default function CheckoutPage() {
     const orderRes = await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ addressId: selectedAddressId, couponCode: couponCode || undefined, paymentMethod }),
+      body: JSON.stringify({
+        addressId: selectedAddressId,
+        couponCode: couponCode || undefined,
+        paymentMethod,
+        ...(location ? {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          locationCity: location.city,
+          locationState: location.state,
+        } : {}),
+      }),
     });
     const orderData = await orderRes.json();
     if (!orderRes.ok) {

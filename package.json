@@ -10,14 +10,14 @@
     "seed": "ts-node --project tsconfig.seed.json prisma/seed.ts"
   },
   "prisma": {
-    "seed": "ts-node --project tsconfig.seed.json prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@react-pdf/renderer": "^4.5.1",
     "@types/pg": "^8.20.0",
-    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "canvas-confetti": "^1.9.4",
     "cloudinary": "^2.10.0",
     "lucide-react": "^1.20.0",
@@ -32,7 +32,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
+    "@types/bcryptjs": "^2.4.6",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^20",
     "@types/react": "^18",
@@ -44,8 +44,5 @@
     "tailwindcss": "^3.4.1",
     "tsx": "^4.22.4",
     "typescript": "^5"
-  },
-  "prisma": {
-    "seed": "npx tsx prisma/seed.ts"
   }
 }

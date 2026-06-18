@@ -60,6 +60,11 @@ interface Order {
     };
   }>;
   payments: Payment[];
+  shiprocketOrderId?: string | null;
+  shiprocketShipmentId?: string | null;
+  awbNumber?: string | null;
+  courierName?: string | null;
+  shippingLabelUrl?: string | null;
 }
 
 export default function AdminOrdersPage() {
@@ -259,6 +264,37 @@ export default function AdminOrdersPage() {
                       ))}
                     </ul>
                   </div>
+
+                  {/* Shiprocket Fulfillment details */}
+                  {order.shiprocketShipmentId && (
+                    <div className="mt-2 text-xs text-slate-400 bg-slate-950/40 p-2.5 rounded-xl border border-slate-900 flex flex-wrap items-center gap-x-4 gap-y-1">
+                      <span className="text-[10px] font-bold text-rose-500 uppercase tracking-wider">Shiprocket Fulfillment:</span>
+                      <span>Order ID: <strong className="text-slate-300 font-mono">{order.shiprocketOrderId}</strong></span>
+                      <span className="text-slate-650">|</span>
+                      <span>Shipment ID: <strong className="text-slate-300 font-mono">{order.shiprocketShipmentId}</strong></span>
+                      {order.awbNumber && (
+                        <>
+                          <span className="text-slate-655">|</span>
+                          <span className="text-emerald-400 font-bold bg-emerald-950/20 border border-emerald-900/30 px-2 py-0.5 rounded-lg flex items-center gap-1 text-[10px]">
+                            AWB: {order.awbNumber} ({order.courierName})
+                          </span>
+                          {order.shippingLabelUrl && (
+                            <>
+                              <span className="text-slate-650">|</span>
+                              <a 
+                                href={order.shippingLabelUrl} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="text-indigo-400 hover:text-indigo-300 font-bold underline flex items-center gap-1 text-[10px]"
+                              >
+                                Download Label PDF 📄
+                              </a>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Status updates select dropdown & actions */}

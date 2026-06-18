@@ -1,22 +1,21 @@
 "use client";
-import { useEffect, useState } from "react";
 
-const STATUS_COLORS: Record<string, string> = {
-  PENDING: "#854d0e",
-  CONFIRMED: "#166534",
-  PROCESSING: "#1e40af",
-  SHIPPED: "#7e22ce",
-  DELIVERED: "#065f46",
-  CANCELLED: "#991b1b",
-};
-const STATUS_BG: Record<string, string> = {
-  PENDING: "#fef9c3",
-  CONFIRMED: "#dcfce7",
-  PROCESSING: "#dbeafe",
-  SHIPPED: "#f3e8ff",
-  DELIVERED: "#d1fae5",
-  CANCELLED: "#fee2e2",
-};
+import React, { useEffect, useState } from "react";
+import { 
+  Truck, 
+  Package, 
+  Clock, 
+  CheckCircle, 
+  Search, 
+  AlertTriangle, 
+  MapPin, 
+  Phone, 
+  User, 
+  ExternalLink, 
+  RefreshCw, 
+  FileText,
+  CheckSquare
+} from "lucide-react";
 
 interface Order {
   id: string;
@@ -29,14 +28,14 @@ interface Order {
   locationState?: string;
   latitude?: number;
   longitude?: number;
-  user: { name: string; email: string; phone?: string };
+  user: { name: string; email: string; phone?: string | null };
   address: { name: string; street: string; city: string; state: string; pincode: string; phone: string };
-  items: { id: string; quantity: number; priceAtPurchase: number; variant: { color?: string; size?: string; product: { name: string } } }[];
-  shiprocketOrderId?: string;
-  shiprocketShipmentId?: string;
-  awbNumber?: string;
-  courierName?: string;
-  shippingLabelUrl?: string;
+  items: { id: string; quantity: number; priceAtPurchase: number; variant: { color?: string | null; size?: string | null; product: { name: string } } }[];
+  shiprocketOrderId?: string | null;
+  shiprocketShipmentId?: string | null;
+  awbNumber?: string | null;
+  courierName?: string | null;
+  shippingLabelUrl?: string | null;
 }
 
 export default function ShipperPage() {
@@ -53,29 +52,51 @@ export default function ShipperPage() {
   const [shiprocketRates, setShiprocketRates] = useState<Record<string, any[]>>({});
   const [selectedCouriers, setSelectedCouriers] = useState<Record<string, string>>({});
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   async function fetchOrders() {
     setLoading(true);
-    const res = await fetch("/api/shipper/orders");
-    if (res.ok) { const data = await res.json(); setOrders(data.orders || []); }
-    setLoading(false);
+    try {
+      const res = await fetch("/api/shipper/orders");
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(data.orders || []);
+      }
+    } catch (err) {
+      console.error("Error loading orders:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function updateOrder(orderId: string, status: string) {
     setUpdating(orderId);
-    await fetch("/api/shipper/orders", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId, status, trackingNumber: trackingInputs[orderId], shippingNotes: notesInputs[orderId] }),
-    });
-    await fetchOrders();
-    setUpdating(null);
+    try {
+      const res = await fetch("/api/shipper/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId,
+          status,
+          trackingNumber: trackingInputs[orderId],
+          shippingNotes: notesInputs[orderId],
+        }),
+      });
+      if (res.ok) {
+        await fetchOrders();
+      }
+    } catch (err) {
+      console.error("Error updating order:", err);
+    } finally {
+      setUpdating(null);
+    }
   }
 
   // Shiprocket 1: Push Order and get Rates
   async function pushToShiprocket(orderId: string) {
-    setLoadingShiprocket(p => ({ ...p, [orderId]: true }));
+    setLoadingShiprocket(p => ({ ...p, [orderId] : true }));
     try {
       const res = await fetch("/api/shipper/shiprocket", {
         method: "POST",
@@ -152,6 +173,15 @@ export default function ShipperPage() {
     SHIPPED: "DELIVERED",
   };
 
+  const statusColors: Record<string, string> = {
+    PENDING: "text-amber-400 bg-amber-950/40 border-amber-500/20",
+    CONFIRMED: "text-blue-400 bg-blue-950/40 border-blue-500/20",
+    PROCESSING: "text-indigo-400 bg-indigo-950/40 border-indigo-500/20",
+    SHIPPED: "text-purple-400 bg-purple-950/40 border-purple-500/20",
+    DELIVERED: "text-emerald-400 bg-emerald-950/40 border-emerald-500/20",
+    CANCELLED: "text-slate-500 bg-slate-900 border-slate-800",
+  };
+
   const filtered = orders.filter(o => {
     const matchesStatus = filter === "ALL" || o.status === filter;
     const q = searchQuery.toLowerCase().trim();
@@ -173,156 +203,293 @@ export default function ShipperPage() {
   };
 
   return (
-    <div>
-      {/* Stats */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "16px", marginBottom: "28px" }}>
-        {[
-          { label: "Total Orders", value: stats.total, icon: "📦", color: "#e11d48" },
-          { label: "Processing", value: stats.processing, icon: "⚙️", color: "#1e40af" },
-          { label: "Shipped", value: stats.shipped, icon: "🚚", color: "#7e22ce" },
-          { label: "Delivered", value: stats.delivered, icon: "✅", color: "#065f46" },
-        ].map(s => (
-          <div key={s.label} style={{ background: "#fff0f6", borderRadius: "16px", padding: "20px", border: "1px solid #fbcfe8", textAlign: "center" }}>
-            <div style={{ fontSize: "32px", marginBottom: "6px" }}>{s.icon}</div>
-            <div style={{ fontSize: "28px", fontWeight: 900, color: s.color }}>{s.value}</div>
-            <div style={{ fontSize: "13px", color: "#7c3048", fontWeight: 600 }}>{s.label}</div>
+    <div className="flex flex-col gap-6">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-900 pb-5">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <Truck className="text-rose-500" size={26} /> Shipper Operations Hub
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Manage active shipments, query Shiprocket logistics rates, and log delivery completions.
+          </p>
+        </div>
+        <button 
+          onClick={fetchOrders}
+          disabled={loading}
+          className="self-start md:self-auto flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-350 hover:bg-slate-850 hover:text-white transition-all disabled:opacity-50"
+        >
+          <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+          Refresh Portal
+        </button>
+      </div>
+
+      {/* Stats Cards Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Total */}
+        <div className="glass-card rounded-2xl p-5 border border-slate-800 flex flex-col gap-3">
+          <div className="flex justify-between items-center w-full">
+            <span className="text-[10px] text-slate-500 font-extrabold tracking-wider uppercase">Active Shipments</span>
+            <div className="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500">
+              <Package size={16} />
+            </div>
           </div>
-        ))}
+          <div className="flex flex-col">
+            <span className="text-2xl font-black text-white">{stats.total}</span>
+            <span className="text-[10px] text-slate-500 mt-1">Total pending and active</span>
+          </div>
+        </div>
+
+        {/* Processing */}
+        <div className="glass-card rounded-2xl p-5 border border-slate-800 flex flex-col gap-3">
+          <div className="flex justify-between items-center w-full">
+            <span className="text-[10px] text-slate-500 font-extrabold tracking-wider uppercase">Fulfillment</span>
+            <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+              <Clock size={16} />
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-2xl font-black text-white">{stats.processing}</span>
+            <span className="text-[10px] text-slate-500 mt-1">Currently processing</span>
+          </div>
+        </div>
+
+        {/* Shipped */}
+        <div className="glass-card rounded-2xl p-5 border border-slate-800 flex flex-col gap-3">
+          <div className="flex justify-between items-center w-full">
+            <span className="text-[10px] text-slate-500 font-extrabold tracking-wider uppercase">In Transit</span>
+            <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
+              <Truck size={16} />
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-2xl font-black text-white">{stats.shipped}</span>
+            <span className="text-[10px] text-slate-500 mt-1">In transit with carrier</span>
+          </div>
+        </div>
+
+        {/* Delivered */}
+        <div className="glass-card rounded-2xl p-5 border border-slate-800 flex flex-col gap-3">
+          <div className="flex justify-between items-center w-full">
+            <span className="text-[10px] text-slate-500 font-extrabold tracking-wider uppercase">Delivered</span>
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+              <CheckCircle size={16} />
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-2xl font-black text-white">{stats.delivered}</span>
+            <span className="text-[10px] text-slate-500 mt-1">Delivered successfully</span>
+          </div>
+        </div>
       </div>
 
       {/* Filter Tabs & Search */}
-      <div style={{ display: "flex", gap: "16px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-          {["ALL", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED"].map(s => (
-            <button key={s} onClick={() => setFilter(s)} style={{ padding: "8px 20px", borderRadius: "999px", border: "none", cursor: "pointer", fontWeight: 700, fontSize: "13px", background: filter === s ? "#e11d48" : "#fce7f3", color: filter === s ? "#fff" : "#be185d", transition: "all 0.2s" }}>{s}</button>
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center glass-card p-4 rounded-xl border border-slate-900 bg-slate-900/30">
+        <div className="flex gap-2 flex-wrap">
+          {["ALL", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED"].map((s) => (
+            <button
+              key={s}
+              onClick={() => setFilter(s)}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${filter === s ? "bg-rose-600 text-white shadow-lg shadow-rose-500/20" : "bg-slate-950 border border-slate-800 text-slate-400 hover:text-slate-200"}`}
+            >
+              {s}
+            </button>
           ))}
         </div>
-        <div style={{ flex: "1", maxWidth: "350px", minWidth: "200px" }}>
+        
+        <div className="relative w-full sm:max-w-xs">
           <input
             type="text"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="🔍 Search City, Pincode, State or Name..."
-            style={{ width: "100%", padding: "8px 16px", borderRadius: "999px", border: "1px solid #fbcfe8", fontSize: "13px", outline: "none", color: "#881337", boxSizing: "border-box" }}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search city, zip, state, name..."
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 pl-9 pr-3 text-xs focus:outline-none focus:border-rose-500 text-slate-350 placeholder-slate-600"
           />
+          <Search className="absolute left-3 top-2.5 text-slate-600" size={14} />
         </div>
       </div>
 
+      {/* Orders List */}
       {loading ? (
-        <div style={{ textAlign: "center", padding: "60px", color: "#be185d", fontSize: "18px" }}>Loading orders... 🌸</div>
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-rose-500"></div>
+          <p className="text-xs text-slate-500">Retrieving shipping pipeline...</p>
+        </div>
       ) : filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px", color: "#9c4060", background: "#fff0f6", borderRadius: "16px", border: "1px solid #fbcfe8" }}>
-          <div style={{ fontSize: "48px", marginBottom: "12px" }}>📭</div>
-          <p>No orders found matching the filter or search term.</p>
+        <div className="text-center py-20 glass-card rounded-2xl p-8 border border-slate-800 bg-slate-900/10">
+          <AlertTriangle className="w-12 h-12 text-slate-700 mx-auto mb-4" />
+          <h3 className="text-sm font-bold text-slate-400 uppercase">No Orders Found</h3>
+          <p className="text-xs text-slate-500 mt-1">Modify your search query or check the status tabs.</p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          {filtered.map(order => {
+        <div className="flex flex-col gap-6">
+          {filtered.map((order) => {
             const hasShiprocket = order.shiprocketShipmentId;
             const hasAwb = order.awbNumber;
             const rates = shiprocketRates[order.id] || [];
+            
+            const dateStr = new Date(order.createdAt).toLocaleDateString("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
 
             return (
-              <div key={order.id} style={{ background: "#fff0f6", borderRadius: "20px", border: "1px solid #fbcfe8", overflow: "hidden", boxShadow: "0 4px 16px rgba(225,29,72,0.04)" }}>
+              <div 
+                key={order.id} 
+                className="glass-card rounded-2xl p-6 border border-slate-850/80 flex flex-col gap-5 bg-slate-950/20 hover:border-slate-800 transition-all"
+              >
                 {/* Order Header */}
-                <div style={{ background: "linear-gradient(135deg,#fce7f3,#fdf2f8)", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px", borderBottom: "1px solid #fbcfe8" }}>
-                  <div>
-                    <span style={{ fontWeight: 800, color: "#e11d48", fontSize: "15px" }}>#{order.id.slice(0, 8).toUpperCase()}</span>
-                    <span style={{ marginLeft: "12px", background: STATUS_BG[order.status] || "#f3f4f6", color: STATUS_COLORS[order.status] || "#374151", padding: "3px 12px", borderRadius: "999px", fontSize: "12px", fontWeight: 700 }}>{order.status}</span>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-900">
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono font-bold text-sm text-rose-400">
+                      #{order.id.slice(0, 8).toUpperCase()}
+                    </span>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold border ${statusColors[order.status] || "text-slate-400 bg-slate-900 border-slate-800"}`}>
+                      {order.status}
+                    </span>
+                    <span className="text-[10px] text-slate-500">{dateStr}</span>
                   </div>
-                  <div style={{ fontSize: "13px", color: "#7c3048" }}>{new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div>
-                  <div style={{ fontWeight: 800, color: "#e11d48", fontSize: "18px" }}>₹{order.total.toFixed(2)}</div>
+                  <div className="text-sm font-black text-rose-500">₹{order.total.toFixed(2)}</div>
                 </div>
 
-                <div style={{ padding: "20px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px" }}>
+                {/* 3-Column Info */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-400">
                   {/* Customer */}
-                  <div>
-                    <h4 style={{ margin: "0 0 10px", color: "#be185d", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>👤 Customer</h4>
-                    <p style={{ margin: "0 0 4px", fontWeight: 700, color: "#1f0a10" }}>{order.user.name}</p>
-                    <p style={{ margin: "0 0 2px", fontSize: "13px", color: "#5c2033" }}>{order.user.email}</p>
-                    <p style={{ margin: 0, fontSize: "13px" }}>
-                      <a href={`tel:${order.address.phone}`} style={{ color: "#e11d48", fontWeight: 700, textDecoration: "none" }}>
-                        📞 {order.address.phone}
-                      </a>
-                    </p>
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Customer Details</span>
+                    <div className="flex flex-col bg-slate-950/40 p-3 rounded-xl border border-slate-900/60 h-full">
+                      <span className="font-bold text-white text-sm">{order.user.name}</span>
+                      <span className="text-slate-450 mt-1">{order.user.email}</span>
+                      {order.address.phone && (
+                        <a 
+                          href={`tel:${order.address.phone}`} 
+                          className="text-rose-400 hover:text-rose-300 font-semibold mt-2.5 flex items-center gap-1.5 self-start"
+                        >
+                          <Phone size={11} /> {order.address.phone}
+                        </a>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Shipping Address */}
-                  <div>
-                    <h4 style={{ margin: "0 0 10px", color: "#be185d", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>📍 Ship To</h4>
-                    <p style={{ margin: "0 0 2px", fontWeight: 600, color: "#1f0a10", fontSize: "13px" }}>{order.address.name}</p>
-                    <p style={{ margin: "0 0 2px", fontSize: "13px", color: "#5c2033" }}>{order.address.street}</p>
-                    <p style={{ margin: "0 0 2px", fontSize: "13px", color: "#5c2033" }}>{order.address.city}, {order.address.state}</p>
-                    <p style={{ margin: 0, fontSize: "13px", color: "#5c2033" }}>PIN: {order.address.pincode}</p>
-                    {order.latitude && (
-                      <a href={`https://www.google.com/maps?q=${order.latitude},${order.longitude}`} target="_blank" rel="noreferrer" style={{ fontSize: "12px", color: "#e11d48", fontWeight: 600, display: "inline-block", marginTop: "6px" }}>🗺️ View on Maps</a>
-                    )}
+                  {/* Ship To */}
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Shipping Destination</span>
+                    <div className="flex flex-col bg-slate-950/40 p-3 rounded-xl border border-slate-900/60 h-full">
+                      <span className="font-bold text-slate-200">{order.address.name}</span>
+                      <span className="text-slate-450 mt-1">{order.address.street}</span>
+                      <span className="text-slate-450">{order.address.city}, {order.address.state} - {order.address.pincode}</span>
+                      {order.latitude && (
+                        <a 
+                          href={`https://www.google.com/maps?q=${order.latitude},${order.longitude}`} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          className="text-rose-450 hover:text-rose-300 font-semibold mt-2.5 flex items-center gap-1.5 self-start"
+                        >
+                          <MapPin size={11} /> Open in Google Maps <ExternalLink size={10} />
+                        </a>
+                      )}
+                    </div>
                   </div>
 
                   {/* Items */}
-                  <div>
-                    <h4 style={{ margin: "0 0 10px", color: "#be185d", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>🧴 Items</h4>
-                    {order.items.map(item => (
-                      <div key={item.id} style={{ fontSize: "13px", color: "#3b1121", marginBottom: "4px" }}>
-                        <span style={{ fontWeight: 600 }}>{item.variant.product.name}</span>
-                        <span style={{ color: "#9c4060" }}> × {item.quantity}</span>
-                        {item.variant.color && <span style={{ color: "#7c3048" }}> ({item.variant.color})</span>}
-                      </div>
-                    ))}
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">SKUs In Shipment</span>
+                    <div className="flex flex-col bg-slate-950/40 p-3 rounded-xl border border-slate-900/60 h-full">
+                      <ul className="flex flex-col gap-1.5">
+                        {order.items.map((item) => (
+                          <li key={item.id} className="text-slate-350 text-[11px] leading-tight">
+                            <strong>{item.variant.product.name}</strong> 
+                            <span className="text-rose-400"> × {item.quantity}</span>
+                            {(item.variant.color || item.variant.size) && (
+                              <span className="text-slate-500 block text-[10px]">
+                                {item.variant.color && `Color: ${item.variant.color}`}
+                                {item.variant.color && item.variant.size && " | "}
+                                {item.variant.size && `Size: ${item.variant.size}`}
+                              </span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
 
-                {/* SHIPROCKET LOGISTICS HUB */}
-                <div style={{ background: "#fff5f8", padding: "16px 20px", borderTop: "1px solid #fbcfe8", borderBottom: "1px solid #fbcfe8" }}>
-                  <h4 style={{ margin: "0 0 12px", color: "#be185d", fontSize: "11px", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>🚀 Shiprocket Fulfillment Hub</h4>
-                  
+                {/* Shiprocket Fulfillment Hub Section */}
+                <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-900 flex flex-col gap-3.5">
+                  <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                    <span className="text-[10px] font-extrabold text-rose-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <Truck size={12} /> Shiprocket Logistics Center
+                    </span>
+                    {hasShiprocket && (
+                      <span className="text-[10px] text-slate-500">Order linked successfully</span>
+                    )}
+                  </div>
+
+                  {/* 1. Push Order & Get rates */}
                   {!hasShiprocket && !rates.length && (
-                    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <p className="text-xs text-slate-500 max-w-lg leading-normal">
+                        This pushes delivery details, buyer profile, and skincare package dimensions directly to the Shiprocket API to verify serviceability and fetch real-time courier rates.
+                      </p>
                       <button 
                         onClick={() => pushToShiprocket(order.id)}
                         disabled={loadingShiprocket[order.id] || updating === order.id}
-                        style={{ background: "linear-gradient(135deg,#e11d48,#be185d)", color: "#fff", border: "none", padding: "10px 24px", borderRadius: "12px", fontWeight: 700, cursor: "pointer", fontSize: "13px", opacity: loadingShiprocket[order.id] ? 0.7 : 1 }}
+                        className="flex-shrink-0 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-750 hover:to-rose-800 disabled:opacity-50 text-white font-bold text-xs py-2.5 px-5 rounded-xl transition-all glow-btn"
                       >
-                        {loadingShiprocket[order.id] ? "Connecting with Shiprocket API..." : "Link Order & Check Courier Rates 🌐"}
+                        {loadingShiprocket[order.id] ? "Connecting Shiprocket API..." : "Link Order & Check Rates"}
                       </button>
-                      <p style={{ margin: 0, fontSize: "11px", color: "#9c4060" }}>This pushes delivery coordinates to Shiprocket and queries courier routes.</p>
                     </div>
                   )}
 
                   {loadingShiprocket[order.id] && (
-                    <div style={{ fontSize: "13px", color: "#be185d", fontWeight: 600 }}>Syncing delivery metrics... ⏳</div>
+                    <div className="flex items-center gap-2 text-xs text-rose-450 py-1 font-semibold">
+                      <RefreshCw size={12} className="animate-spin" /> Fetching available courier routes and transit estimates...
+                    </div>
                   )}
 
-                  {/* Courier selection list */}
+                  {/* 2. Select courier and book */}
                   {rates.length > 0 && !hasAwb && (
-                    <div style={{ background: "#fff", padding: "14px", borderRadius: "12px", border: "1px solid #fbcfe8" }}>
-                      <label style={{ fontSize: "12px", fontWeight: 800, color: "#881337", display: "block", marginBottom: "8px" }}>Select Serviceable Courier Partner:</label>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "14px" }}>
+                    <div className="flex flex-col gap-4 bg-slate-950/40 p-4 rounded-xl border border-slate-850">
+                      <div className="text-xs font-bold text-slate-300">Select Serviceable Courier Partner:</div>
+                      <div className="flex flex-col gap-2.5 max-h-56 overflow-y-auto pr-2">
                         {rates.map((c) => (
-                          <label key={c.courier_company_id} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "#1f0a10", cursor: "pointer" }}>
-                            <input 
-                              type="radio" 
-                              name={`courier-${order.id}`} 
-                              value={c.courier_company_id}
-                              checked={selectedCouriers[order.id] === String(c.courier_company_id)}
-                              onChange={e => setSelectedCouriers(p => ({ ...p, [order.id]: e.target.value }))}
-                              style={{ accentColor: "#e11d48" }}
-                            />
-                            <strong>{c.courier_name}</strong> - <span style={{ color: "#e11d48", fontWeight: 700 }}>₹{c.rate.toFixed(2)}</span> (ETD: {c.etd})
+                          <label 
+                            key={c.courier_company_id} 
+                            className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${selectedCouriers[order.id] === String(c.courier_company_id) ? "border-rose-550/80 bg-rose-950/10 text-white" : "border-slate-850 bg-slate-950/20 text-slate-400 hover:border-slate-800"}`}
+                          >
+                            <div className="flex items-center gap-3 text-xs">
+                              <input 
+                                type="radio" 
+                                name={`courier-${order.id}`} 
+                                value={c.courier_company_id}
+                                checked={selectedCouriers[order.id] === String(c.courier_company_id)}
+                                onChange={e => setSelectedCouriers(p => ({ ...p, [order.id]: e.target.value }))}
+                                className="accent-rose-500 w-3.5 h-3.5"
+                              />
+                              <div className="flex flex-col">
+                                <span className="font-bold">{c.courier_name}</span>
+                                <span className="text-[10px] text-slate-500 mt-0.5">Estimated Delivery: {c.etd}</span>
+                              </div>
+                            </div>
+                            <span className="text-xs font-black text-rose-450">₹{c.rate.toFixed(2)}</span>
                           </label>
                         ))}
                       </div>
-                      <div style={{ display: "flex", gap: "10px" }}>
+
+                      <div className="flex gap-2.5 border-t border-slate-900 pt-3">
                         <button
                           onClick={() => bookShiprocketCourier(order.id)}
                           disabled={updating === order.id}
-                          style={{ background: "#166534", color: "#fff", border: "none", padding: "8px 20px", borderRadius: "8px", fontWeight: 700, cursor: "pointer", fontSize: "12px" }}
+                          className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs py-2 px-4 rounded-lg transition-colors"
                         >
-                          {updating === order.id ? "Assigning AWB..." : "Book Shipment & Assign AWB 🚚"}
+                          {updating === order.id ? "Assigning AWB..." : "Confirm Booking & Assign AWB"}
                         </button>
                         <button
                           onClick={() => setShiprocketRates(p => { const clone = { ...p }; delete clone[order.id]; return clone; })}
-                          style={{ background: "#f3f4f6", color: "#4b5563", border: "1px solid #d1d5db", padding: "8px 16px", borderRadius: "8px", fontWeight: 700, cursor: "pointer", fontSize: "12px" }}
+                          className="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-slate-200 font-bold text-xs py-2 px-4 rounded-lg transition-colors"
                         >
                           Cancel
                         </button>
@@ -330,22 +497,25 @@ export default function ShipperPage() {
                     </div>
                   )}
 
-                  {/* Registered metadata */}
+                  {/* 3. Display metadata and label download */}
                   {hasShiprocket && (
-                    <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", fontSize: "13px", color: "#1f0a10", marginTop: "4px" }}>
-                      <div>Shiprocket Order ID: <strong>{order.shiprocketOrderId}</strong></div>
-                      <div>Shipment ID: <strong>{order.shiprocketShipmentId}</strong></div>
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-3.5 text-[11px] text-slate-450">
+                      <div>Shiprocket Order ID: <strong className="text-slate-300 font-mono">{order.shiprocketOrderId}</strong></div>
+                      <div>Shipment ID: <strong className="text-slate-300 font-mono">{order.shiprocketShipmentId}</strong></div>
                       {hasAwb && (
                         <>
-                          <div style={{ color: "#065f46" }}>AWB / Courier: <strong>{order.awbNumber} ({order.courierName})</strong></div>
+                          <div>Courier Partner: <strong className="text-slate-300">{order.courierName}</strong></div>
+                          <div className="text-emerald-450 font-bold bg-emerald-950/20 border border-emerald-900/30 px-2 py-0.5 rounded-lg flex items-center gap-1">
+                            AWB: <span className="font-mono">{order.awbNumber}</span>
+                          </div>
                           {order.shippingLabelUrl && (
                             <a 
                               href={order.shippingLabelUrl} 
                               target="_blank" 
                               rel="noreferrer" 
-                              style={{ color: "#1e40af", fontWeight: 700, textDecoration: "underline", cursor: "pointer" }}
+                              className="text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1 hover:underline ml-auto"
                             >
-                              Download Shipping Label (PDF) 📄
+                              <FileText size={12} /> Download PDF Shipping Label 📄
                             </a>
                           )}
                         </>
@@ -354,29 +524,71 @@ export default function ShipperPage() {
                   )}
                 </div>
 
-                {/* Legacy Manual override update */}
-                {NEXT_STATUS[order.status] && (
-                  <div style={{ padding: "16px 20px", background: "#fce7f3", display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "flex-end" }}>
-                    <div style={{ flex: 1, minWidth: "180px" }}>
-                      <label style={{ fontSize: "12px", fontWeight: 700, color: "#be185d", display: "block", marginBottom: "6px" }}>Manual Tracking Number</label>
-                      <input value={trackingInputs[order.id] || order.trackingNumber || ""} onChange={e => setTrackingInputs(p => ({ ...p, [order.id]: e.target.value }))} placeholder="e.g. DTDC1234567" style={{ width: "100%", padding: "8px 12px", border: "1px solid #fbcfe8", borderRadius: "8px", fontSize: "13px", boxSizing: "border-box", background: "#fff" }} />
+                {/* Fulfillment Updates & Confirm Delivery */}
+                <div className="border-t border-slate-900 pt-4 flex flex-col sm:flex-row gap-4 items-stretch sm:items-end justify-between">
+                  {/* Status controls */}
+                  {NEXT_STATUS[order.status] ? (
+                    <div className="flex-1 flex flex-col gap-3">
+                      {order.status === "SHIPPED" ? (
+                        /* Huge Confirm Delivery Button */
+                        <div className="flex flex-col gap-1.5 w-full">
+                          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Logistics Operations Action:</span>
+                          <button
+                            onClick={() => updateOrder(order.id, "DELIVERED")}
+                            disabled={updating === order.id}
+                            className="w-full sm:max-w-md bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-905/10"
+                          >
+                            <CheckSquare size={16} /> Confirm Delivery & Notify Buyer ✅
+                          </button>
+                        </div>
+                      ) : (
+                        /* Stepper updates for Processing & Shipped */
+                        <div className="flex flex-wrap items-end gap-3.5">
+                          {order.status === "PROCESSING" && (
+                            <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
+                              <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Courier Airway Bill (AWB) / Tracking #</label>
+                              <input 
+                                value={trackingInputs[order.id] || order.trackingNumber || ""} 
+                                onChange={e => setTrackingInputs(p => ({ ...p, [order.id]: e.target.value }))} 
+                                placeholder="e.g. BlueDart 729103984" 
+                                className="bg-slate-950 border border-slate-800 rounded-lg py-1.5 px-3 text-xs text-slate-300 focus:outline-none focus:border-rose-500 w-full" 
+                              />
+                            </div>
+                          )}
+                          <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
+                            <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Fulfillment Notes</label>
+                            <input 
+                              value={notesInputs[order.id] || order.shippingNotes || ""} 
+                              onChange={e => setNotesInputs(p => ({ ...p, [order.id]: e.target.value }))} 
+                              placeholder="e.g. Handed to cargo, delay expected" 
+                              className="bg-slate-950 border border-slate-800 rounded-lg py-1.5 px-3 text-xs text-slate-300 focus:outline-none focus:border-rose-500 w-full" 
+                            />
+                          </div>
+                          <button 
+                            onClick={() => updateOrder(order.id, NEXT_STATUS[order.status])} 
+                            disabled={updating === order.id} 
+                            className="bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-bold text-xs py-2 px-4 rounded-lg transition-colors whitespace-nowrap self-end"
+                          >
+                            {updating === order.id ? "Updating..." : `Mark as ${NEXT_STATUS[order.status]}`}
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <div style={{ flex: 2, minWidth: "220px" }}>
-                      <label style={{ fontSize: "12px", fontWeight: 700, color: "#be185d", display: "block", marginBottom: "6px" }}>Notes (optional)</label>
-                      <input value={notesInputs[order.id] || order.shippingNotes || ""} onChange={e => setNotesInputs(p => ({ ...p, [order.id]: e.target.value }))} placeholder="Delivery notes..." style={{ width: "100%", padding: "8px 12px", border: "1px solid #fbcfe8", borderRadius: "8px", fontSize: "13px", boxSizing: "border-box", background: "#fff" }} />
+                  ) : (
+                    /* Final status view */
+                    <div className="flex items-center gap-2 text-xs font-semibold text-emerald-450 bg-emerald-950/10 border border-emerald-900/30 px-3.5 py-2 rounded-xl">
+                      <CheckCircle size={14} /> Delivered successfully and customer notifications sent.
                     </div>
-                    <button onClick={() => updateOrder(order.id, NEXT_STATUS[order.status])} disabled={updating === order.id} style={{ background: "linear-gradient(135deg,#e11d48,#be185d)", color: "#fff", border: "none", padding: "10px 24px", borderRadius: "999px", fontWeight: 700, cursor: "pointer", fontSize: "13px", whiteSpace: "nowrap", opacity: updating === order.id ? 0.7 : 1 }}>
-                      {updating === order.id ? "Updating..." : `Mark as ${NEXT_STATUS[order.status]} 🚀`}
-                    </button>
-                  </div>
-                )}
+                  )}
 
-                {order.trackingNumber && !hasAwb && (
-                  <div style={{ padding: "10px 20px", background: "#dbeafe", fontSize: "13px", color: "#1e40af" }}>
-                    📦 Tracking: <strong>{order.trackingNumber}</strong>
-                    {order.shippingNotes && <span style={{ marginLeft: "16px", color: "#1e3a8a" }}>Note: {order.shippingNotes}</span>}
-                  </div>
-                )}
+                  {/* Backwards compatibility tracking info */}
+                  {order.trackingNumber && !hasAwb && (
+                    <div className="text-[11px] text-slate-450 bg-slate-900/30 border border-slate-850 px-3 py-2 rounded-xl flex items-center gap-2">
+                      <span>Tracking: <strong className="text-slate-300">{order.trackingNumber}</strong></span>
+                      {order.shippingNotes && <span className="text-slate-550">| Note: {order.shippingNotes}</span>}
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}

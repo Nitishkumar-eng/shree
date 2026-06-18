@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import crypto from "crypto";
 import * as z from "zod";
-import { sendOrderConfirmationEmail } from "@/lib/emails";
+import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShipperOrderNotification } from "@/lib/emails";
 import { mockDbStore } from "@/lib/mockDbStore";
 
 const verifyPaymentSchema = z.object({
@@ -33,9 +33,10 @@ export async function POST(req: Request) {
     if (isMock) {
       console.warn("Verifying simulated Razorpay order signature (mock mode)");
       
+      let payment: any = null;
       // Update DB if online, or update mockDbStore if offline
       try {
-        const payment = await db.payment.findUnique({
+        payment = await db.payment.findUnique({
           where: { razorpayOrderId },
         });
 
@@ -69,10 +70,18 @@ export async function POST(req: Request) {
         });
       }
 
+      const confirmedOrderId = payment?.orderId || orderId || "mock-order-default";
+      // Fire emails asynchronously
+      Promise.all([
+        sendOrderConfirmationEmail(confirmedOrderId).catch(e => console.error("User mock email failed:", e)),
+        sendAdminOrderNotification(confirmedOrderId).catch(e => console.error("Admin mock email failed:", e)),
+        sendShipperOrderNotification(confirmedOrderId).catch(e => console.error("Shipper mock email failed:", e)),
+      ]);
+
       return NextResponse.json({
         success: true,
         message: "Payment verified successfully (Mock Mode)",
-        orderId: orderId || "mock-order-default",
+        orderId: confirmedOrderId,
       });
     }
 
@@ -138,12 +147,12 @@ export async function POST(req: Request) {
     });
 
     // 3. Trigger email confirmation asynchronously via Resend (Will handle errors gracefully)
-    // We will build a helper in `/lib/emails.ts` and import it. Let's do that.
-    try {
-      await sendOrderConfirmationEmail(result.updatedOrder.id);
-    } catch (emailErr) {
-      console.error("Failed to send order email:", emailErr);
-    }
+    const confirmedOrderId = result.updatedOrder.id;
+    Promise.all([
+      sendOrderConfirmationEmail(confirmedOrderId).catch(e => console.error("User email failed:", e)),
+      sendAdminOrderNotification(confirmedOrderId).catch(e => console.error("Admin email failed:", e)),
+      sendShipperOrderNotification(confirmedOrderId).catch(e => console.error("Shipper email failed:", e)),
+    ]);
 
     return NextResponse.json({
       success: true,

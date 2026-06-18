@@ -28,6 +28,7 @@ export default function Navbar() {
   const [isCartBouncing, setIsCartBouncing] = useState(false);
 
   const isAdmin = (session?.user as any)?.role === "ADMIN";
+  const isShipper = (session?.user as any)?.role === "SHIPPER";
 
   // Load cart and wishlist counts
   useEffect(() => {
@@ -171,6 +172,16 @@ export default function Navbar() {
                             Admin Panel
                           </Link>
                         )}
+                        {isShipper && (
+                          <Link
+                            href="/shipper"
+                            onClick={() => setIsProfileOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-indigo-400 rounded-lg hover:bg-slate-800 transition-colors"
+                          >
+                            <LayoutDashboard size={16} />
+                            Shipper Dashboard
+                          </Link>
+                        )}
                         <Link
                           href="/profile"
                           onClick={() => setIsProfileOpen(false)}
@@ -227,6 +238,11 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             {session && isAdmin && (
               <Link href="/admin" className="text-indigo-400 p-1 hover:bg-slate-900 rounded-lg transition-colors">
+                <LayoutDashboard size={20} />
+              </Link>
+            )}
+            {session && isShipper && (
+              <Link href="/shipper" className="text-indigo-400 p-1 hover:bg-slate-900 rounded-lg transition-colors">
                 <LayoutDashboard size={20} />
               </Link>
             )}

@@ -6,7 +6,7 @@ import { calculateGst } from "@/lib/gst";
 import { checkPincode } from "@/lib/pincodes";
 import * as z from "zod";
 import { mockDbStore } from "@/lib/mockDbStore";
-import { sendOrderConfirmationEmail, sendAdminOrderNotification } from "@/lib/emails";
+import { sendOrderConfirmationEmail, sendAdminOrderNotification, sendShipperOrderNotification } from "@/lib/emails";
 
 const createOrderSchema = z.object({
   addressId: z.string(),
@@ -266,11 +266,12 @@ export async function POST(req: Request) {
       return newOrder;
     });
 
-    // Fire admin + user emails async (don't block response)
+    // Fire admin + user + shipper emails async (don't block response)
     const orderId = order.id;
     Promise.all([
       sendOrderConfirmationEmail(orderId).catch(e => console.error("User email failed:", e)),
       sendAdminOrderNotification(orderId).catch(e => console.error("Admin email failed:", e)),
+      sendShipperOrderNotification(orderId).catch(e => console.error("Shipper email failed:", e)),
     ]);
 
     return NextResponse.json(order, { status: 201 });

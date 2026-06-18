@@ -5,6 +5,16 @@ const SHIPROCKET_BASE_URL = "https://apiv2.shiprocket.in/v1/external";
 let cachedToken: string | null = null;
 let tokenExpiry: number | null = null;
 
+function formatAddressLine(street: string): string {
+  const clean = street.trim();
+  const hasNumberPrefix = /^[0-9#]/i.test(clean) || 
+                          /^(flat|plot|house|shop|room|no|road|building|block|street)/i.test(clean);
+  if (hasNumberPrefix) {
+    return clean;
+  }
+  return `Flat/Plot, ${clean}`;
+}
+
 // Helper to authenticate and get token
 async function getAuthToken(): Promise<string | null> {
   // Check cache (tokens are usually valid for 10 days, we'll cache for 1 day)
@@ -108,13 +118,16 @@ export const shiprocketClient = {
         .replace(/\..+/, '')
         .substring(0, 16); // format: YYYY-MM-DD HH:MM
 
+      const formattedAddress = formatAddressLine(order.address.street);
+
       const payload = {
         order_id: order.id,
         order_date: orderDateString,
         pickup_location: "Primary", // Requires pre-configured location name in Shiprocket dashboard
         billing_customer_name: firstName,
         billing_last_name: lastName,
-        billing_address: order.address.street,
+        billing_address: formattedAddress,
+        billing_address_2: "",
         billing_city: order.address.city,
         billing_pincode: order.address.pincode,
         billing_state: order.address.state,
@@ -122,11 +135,21 @@ export const shiprocketClient = {
         billing_email: order.user.email,
         billing_phone: order.address.phone,
         shipping_is_billing: true,
+        shipping_customer_name: firstName,
+        shipping_last_name: lastName,
+        shipping_address: formattedAddress,
+        shipping_address_2: "",
+        shipping_city: order.address.city,
+        shipping_pincode: order.address.pincode,
+        shipping_state: order.address.state,
+        shipping_country: "India",
+        shipping_email: order.user.email,
+        shipping_phone: order.address.phone,
         order_items: orderItems,
         payment_method: isCod ? "COD" : "Prepaid",
         sub_total: order.subtotal,
         length: 12, // default skincare package size
-        width: 12,
+        breadth: 12,
         height: 8,
         weight: 0.45 // average skincare weight
       };

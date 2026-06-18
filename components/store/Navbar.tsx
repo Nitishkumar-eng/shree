@@ -25,6 +25,7 @@ export default function Navbar() {
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isCartBouncing, setIsCartBouncing] = useState(false);
 
   const isAdmin = (session?.user as any)?.role === "ADMIN";
 
@@ -34,8 +35,8 @@ export default function Navbar() {
       if (!session) {
         // Fetch from local storage for guests
         try {
-          const guestCart = JSON.parse(localStorage.getItem("shree-guest-cart") || "[]");
-          const guestWish = JSON.parse(localStorage.getItem("shree-guest-wishlist") || "[]");
+          const guestCart = JSON.parse(localStorage.getItem("dewkit-guest-cart") || "[]");
+          const guestWish = JSON.parse(localStorage.getItem("dewkit-guest-wishlist") || "[]");
           setCartCount(guestCart.reduce((acc: number, item: any) => acc + item.quantity, 0));
           setWishlistCount(guestWish.length);
         } catch {
@@ -66,8 +67,13 @@ export default function Navbar() {
     fetchCounts();
 
     // Listen to storage changes (for local cart updates)
-    window.addEventListener("shree-cart-update", fetchCounts);
-    return () => window.removeEventListener("shree-cart-update", fetchCounts);
+    const handleCartUpdate = () => {
+      fetchCounts();
+      setIsCartBouncing(true);
+      setTimeout(() => setIsCartBouncing(false), 400);
+    };
+    window.addEventListener("dewkit-cart-update", handleCartUpdate);
+    return () => window.removeEventListener("dewkit-cart-update", handleCartUpdate);
   }, [session, pathname]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -85,7 +91,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl font-extrabold tracking-wider bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-500 bg-clip-text text-transparent">
-              SHREE
+              DEWKIT
             </span>
           </Link>
 
@@ -122,7 +128,7 @@ export default function Navbar() {
             </Link>
 
             <Link href="/cart" className="relative text-slate-300 hover:text-indigo-400 transition-colors">
-              <ShoppingBag size={20} />
+              <ShoppingBag size={20} className={isCartBouncing ? "animate-cart-bounce" : ""} />
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-indigo-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                   {cartCount}
@@ -166,12 +172,12 @@ export default function Navbar() {
                           </Link>
                         )}
                         <Link
-                          href="/orders"
+                          href="/profile"
                           onClick={() => setIsProfileOpen(false)}
                           className="flex items-center gap-2 px-3 py-2 text-sm text-slate-300 rounded-lg hover:bg-slate-800 transition-colors"
                         >
-                          <History size={16} />
-                          My Orders
+                          <User size={16} />
+                          My Profile
                         </Link>
                         <button
                           onClick={() => {
@@ -215,7 +221,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
           <Link href="/">
             <span className="text-xl font-extrabold tracking-wider bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-              SHREE
+              DEWKIT
             </span>
           </Link>
           <div className="flex items-center gap-3">
@@ -271,7 +277,7 @@ export default function Navbar() {
           href="/cart" 
           className={`relative flex flex-col items-center justify-center flex-1 gap-1 text-[10px] transition-colors ${pathname === "/cart" ? "text-indigo-400" : "text-slate-500"}`}
         >
-          <ShoppingBag size={20} />
+          <ShoppingBag size={20} className={isCartBouncing ? "animate-cart-bounce" : ""} />
           {cartCount > 0 && (
             <span className="absolute top-1 right-5 bg-indigo-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
               {cartCount}
@@ -294,11 +300,11 @@ export default function Navbar() {
         </Link>
 
         <Link 
-          href="/orders" 
-          className={`flex flex-col items-center justify-center flex-1 gap-1 text-[10px] transition-colors ${pathname === "/orders" ? "text-indigo-400" : "text-slate-500"}`}
+          href="/profile" 
+          className={`flex flex-col items-center justify-center flex-1 gap-1 text-[10px] transition-colors ${pathname === "/profile" ? "text-indigo-400" : "text-slate-500"}`}
         >
-          <History size={20} />
-          <span>Orders</span>
+          <User size={20} />
+          <span>Profile</span>
         </Link>
       </nav>
     </>

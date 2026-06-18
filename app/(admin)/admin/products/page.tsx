@@ -117,7 +117,7 @@ export default function AdminProductsPage() {
     setEditingProduct(null);
     setName("");
     setSlug("");
-    setBrand("Shree");
+    setBrand("Dewkit");
     setCategoryId(categories.length > 0 ? categories[0].id : "");
     setIsActive(true);
     setHsnCode("");
@@ -231,7 +231,7 @@ export default function AdminProductsPage() {
     const payload = {
       name,
       slug,
-      description: "Premium e-commerce catalog item by Shree Retail. High reliability and quality engineering built in India.",
+      description: "Premium e-commerce skincare catalog item by Dewkit. Natural dermatologist-tested ingredients built with care.",
       brand,
       categoryId,
       isActive,
@@ -393,7 +393,7 @@ export default function AdminProductsPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Shree Strider Pro"
+                  placeholder="e.g. Dewkit Glow Serum"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3 text-xs focus:outline-none focus:border-indigo-500 text-slate-200"
@@ -405,7 +405,7 @@ export default function AdminProductsPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. shree-strider-pro"
+                  placeholder="e.g. dewkit-glow-serum"
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 px-3 text-xs focus:outline-none focus:border-indigo-500 text-slate-200"

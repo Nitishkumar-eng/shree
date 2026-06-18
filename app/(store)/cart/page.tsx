@@ -48,7 +48,7 @@ export default function CartPage() {
     if (!session) {
       // Guest Cart from localStorage
       try {
-        const guestCart = JSON.parse(localStorage.getItem("shree-guest-cart") || "[]");
+        const guestCart = JSON.parse(localStorage.getItem("dewkit-guest-cart") || "[]");
         // Convert guest structure to standard model structure
         const formatted: CartItem[] = guestCart.map((i: any) => ({
           productVariantId: i.productVariantId,
@@ -101,7 +101,7 @@ export default function CartPage() {
   useEffect(() => {
     const mergeGuestCart = async () => {
       if (session) {
-        const guestCart = JSON.parse(localStorage.getItem("shree-guest-cart") || "[]");
+        const guestCart = JSON.parse(localStorage.getItem("dewkit-guest-cart") || "[]");
         if (guestCart.length > 0) {
           try {
             const res = await fetch("/api/cart", {
@@ -116,7 +116,7 @@ export default function CartPage() {
               }),
             });
             if (res.ok) {
-              localStorage.removeItem("shree-guest-cart");
+              localStorage.removeItem("dewkit-guest-cart");
               toast("Merged guest items into your account cart", "success");
               fetchCart();
             }
@@ -137,12 +137,12 @@ export default function CartPage() {
     if (!session) {
       // Guest state updates
       try {
-        const guestCart = JSON.parse(localStorage.getItem("shree-guest-cart") || "[]");
+        const guestCart = JSON.parse(localStorage.getItem("dewkit-guest-cart") || "[]");
         const idx = guestCart.findIndex((i: any) => i.productVariantId === variantId);
         if (idx > -1) {
           guestCart[idx].quantity = newQty;
-          localStorage.setItem("shree-guest-cart", JSON.stringify(guestCart));
-          window.dispatchEvent(new Event("shree-cart-update"));
+          localStorage.setItem("dewkit-guest-cart", JSON.stringify(guestCart));
+          window.dispatchEvent(new Event("dewkit-cart-update"));
           fetchCart();
         }
       } catch {
@@ -159,7 +159,7 @@ export default function CartPage() {
       });
       if (res.ok) {
         fetchCart();
-        window.dispatchEvent(new Event("shree-cart-update"));
+        window.dispatchEvent(new Event("dewkit-cart-update"));
       } else {
         const data = await res.json();
         toast(data.error || "Failed to update quantity", "error");
@@ -174,10 +174,10 @@ export default function CartPage() {
     if (!session) {
       // Guest remove
       try {
-        const guestCart = JSON.parse(localStorage.getItem("shree-guest-cart") || "[]");
+        const guestCart = JSON.parse(localStorage.getItem("dewkit-guest-cart") || "[]");
         const filtered = guestCart.filter((i: any) => i.productVariantId !== variantId);
-        localStorage.setItem("shree-guest-cart", JSON.stringify(filtered));
-        window.dispatchEvent(new Event("shree-cart-update"));
+        localStorage.setItem("dewkit-guest-cart", JSON.stringify(filtered));
+        window.dispatchEvent(new Event("dewkit-cart-update"));
         toast("Removed item from cart", "success");
         fetchCart();
       } catch {
@@ -192,7 +192,7 @@ export default function CartPage() {
       });
       if (res.ok) {
         fetchCart();
-        window.dispatchEvent(new Event("shree-cart-update"));
+        window.dispatchEvent(new Event("dewkit-cart-update"));
         toast("Removed item from cart", "success");
       } else {
         toast("Failed to remove item", "error");

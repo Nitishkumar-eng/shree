@@ -39,7 +39,7 @@ export default function AdminLayout({
           {/* Logo */}
           <Link href="/admin" className="flex items-center gap-2">
             <span className="text-xl font-black tracking-widest text-indigo-400">
-              SHREE ADMIN
+              DEWKIT ADMIN
             </span>
           </Link>
 
@@ -90,7 +90,7 @@ export default function AdminLayout({
 
       {/* Mobile Sticky Header */}
       <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-900 bg-slate-950 px-4 py-3 flex items-center justify-between md:hidden">
-        <span className="text-sm font-black tracking-widest text-indigo-400">SHREE ADMIN</span>
+        <span className="text-sm font-black tracking-widest text-indigo-400">DEWKIT ADMIN</span>
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="p-1 rounded-lg border border-slate-800 bg-slate-900/30 text-slate-400 hover:text-white"
@@ -105,7 +105,7 @@ export default function AdminLayout({
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}></div>
           <div className="relative w-64 bg-slate-950 h-full p-6 flex flex-col justify-between shadow-2xl border-r border-slate-900 animate-slide-in-right">
             <div className="flex flex-col gap-6">
-              <span className="text-sm font-black tracking-widest text-indigo-400">SHREE ADMIN</span>
+              <span className="text-sm font-black tracking-widest text-indigo-400">DEWKIT ADMIN</span>
               <nav className="flex flex-col gap-1.5">
                 {navItems.map((item) => {
                   const Icon = item.icon;

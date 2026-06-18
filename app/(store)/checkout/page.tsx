@@ -305,14 +305,14 @@ export default function CheckoutPage() {
         key: payData.keyId,
         amount: payData.amount,
         currency: payData.currency,
-        name: "Shree Premium E-Commerce",
+        name: "Dewkit Premium Skincare",
         description: `Order #${orderId.slice(0, 8).toUpperCase()}`,
         order_id: payData.id,
         handler: async (response: any) => {
           await verifyPayment(response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature, orderId);
         },
         prefill: { name: session?.user?.name || "", email: session?.user?.email || "", contact: selectedAddress?.phone || "" },
-        theme: { color: "#bf2b15" },
+        theme: { color: "#e11d48" },
       };
       const rzp = new (window as any).Razorpay(options);
       rzp.open();

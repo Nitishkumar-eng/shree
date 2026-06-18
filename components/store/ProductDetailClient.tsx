@@ -150,7 +150,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
     if (!session) {
       // Guest local storage cart management
       try {
-        const guestCart = JSON.parse(localStorage.getItem("shree-guest-cart") || "[]");
+        const guestCart = JSON.parse(localStorage.getItem("dewkit-guest-cart") || "[]");
         const existingIdx = guestCart.findIndex((i: any) => i.productVariantId === selectedVariant.id);
         
         if (existingIdx > -1) {
@@ -174,8 +174,8 @@ export default function ProductDetailClient({ product, related }: { product: Pro
             stockQuantity: selectedVariant.stockQuantity,
           });
         }
-        localStorage.setItem("shree-guest-cart", JSON.stringify(guestCart));
-        window.dispatchEvent(new Event("shree-cart-update"));
+        localStorage.setItem("dewkit-guest-cart", JSON.stringify(guestCart));
+        window.dispatchEvent(new Event("dewkit-cart-update"));
         toast("Added to cart successfully (Guest Mode)", "success");
       } catch (e) {
         console.error(e);
@@ -200,7 +200,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
       const data = await res.json();
       if (res.ok) {
         toast("Added to cart successfully", "success");
-        window.dispatchEvent(new Event("shree-cart-update"));
+        window.dispatchEvent(new Event("dewkit-cart-update"));
       } else {
         toast(data.error || "Failed to add to cart", "error");
       }
@@ -219,13 +219,13 @@ export default function ProductDetailClient({ product, related }: { product: Pro
     if (!session) {
       // Guest wishlist
       try {
-        const wishlist = JSON.parse(localStorage.getItem("shree-guest-wishlist") || "[]");
+        const wishlist = JSON.parse(localStorage.getItem("dewkit-guest-wishlist") || "[]");
         if (wishlist.includes(product.id)) {
           toast("Item is already in your wishlist", "info");
         } else {
           wishlist.push(product.id);
-          localStorage.setItem("shree-guest-wishlist", JSON.stringify(wishlist));
-          window.dispatchEvent(new Event("shree-cart-update"));
+          localStorage.setItem("dewkit-guest-wishlist", JSON.stringify(wishlist));
+          window.dispatchEvent(new Event("dewkit-cart-update"));
           toast("Added to wishlist (Guest Mode)", "success");
         }
       } catch {
@@ -245,7 +245,7 @@ export default function ProductDetailClient({ product, related }: { product: Pro
 
       if (res.ok) {
         toast("Added to wishlist", "success");
-        window.dispatchEvent(new Event("shree-cart-update"));
+        window.dispatchEvent(new Event("dewkit-cart-update"));
       } else {
         toast("Item already in wishlist", "info");
       }

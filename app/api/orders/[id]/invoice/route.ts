@@ -109,8 +109,8 @@ export async function GET(
             mrp: 10.00,
             images: ["https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format&fit=crop&q=60"],
             product: {
-              name: "Shree Razorpay Test Token",
-              brand: "Shree"
+              name: "Dewkit Razorpay Test Token",
+              brand: "Dewkit"
             }
           }
         }

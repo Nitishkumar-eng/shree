@@ -28,22 +28,30 @@ async function main() {
   // ── Users ────────────────────────────────────────────────────
   const adminHash = await bcrypt.hash("admin123", 10);
   const admin = await prisma.user.create({
-    data: { name: "Dewkit Admin", email: "admin@shree.com", phone: "9876543210", passwordHash: adminHash, role: "ADMIN" },
+    data: { id: "mock-admin-id", name: "Dewkit Admin", email: "admin@dewkit.in", phone: "9876543210", passwordHash: adminHash, role: "ADMIN" },
   });
 
   const shipperHash = await bcrypt.hash("shipper123", 10);
   const shipper = await prisma.user.create({
-    data: { name: "Delivery Partner", email: "shipper@dewkit.in", phone: "9876543212", passwordHash: shipperHash, role: "SHIPPER" },
+    data: { id: "mock-shipper-id", name: "Delivery Partner", email: "shipper@dewkit.in", phone: "9876543212", passwordHash: shipperHash, role: "SHIPPER" },
   });
 
   const custHash = await bcrypt.hash("customer123", 10);
   const customer = await prisma.user.create({
-    data: { name: "Priya Sharma", email: "priya@example.com", phone: "9876543211", passwordHash: custHash, role: "CUSTOMER" },
+    data: { id: "mock-priya-id", name: "Priya Sharma", email: "priya@example.com", phone: "9876543211", passwordHash: custHash, role: "CUSTOMER" },
   });
   await prisma.address.create({
     data: { userId: customer.id, name: "Priya Sharma", street: "42, Linking Road, Bandra West", city: "Mumbai", state: "Maharashtra", pincode: "400050", phone: "9876543211", isDefault: true },
   });
-  console.log("✅ Users created:", admin.email, shipper.email, customer.email);
+
+  const customer2 = await prisma.user.create({
+    data: { id: "mock-customer-id", name: "Rahul Sharma", email: "rahul@example.com", phone: "9876543219", passwordHash: custHash, role: "CUSTOMER" },
+  });
+  await prisma.address.create({
+    data: { userId: customer2.id, name: "Rahul Sharma", street: "12, MG Road, Camp", city: "Pune", state: "Maharashtra", pincode: "411001", phone: "9876543219", isDefault: true },
+  });
+
+  console.log("✅ Users created:", admin.email, shipper.email, customer.email, customer2.email);
 
   // ── Categories ───────────────────────────────────────────────
   const skincare    = await prisma.category.create({ data: { name: "Skincare", slug: "skincare" } });
@@ -135,7 +143,7 @@ async function main() {
 
   console.log("\n🌸 Dewkit database seeded!\n");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("  Admin:   admin@shree.com     / admin123");
+  console.log("  Admin:   admin@dewkit.in     / admin123");
   console.log("  Shipper: shipper@dewkit.in   / shipper123");
   console.log("  Customer:priya@example.com   / customer123");
   console.log("  Coupons: DEWGLOW10 | DEWFLAT150 | DEWFLAT300");

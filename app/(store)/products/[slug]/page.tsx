@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : "";
 
     return {
-      title: `${product.name} | Shree Premium`,
+      title: `${product.name} | Dewkit Skincare`,
       description: product.description.slice(0, 155) + "...",
       openGraph: {
         title: product.name,
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   } catch {
     return {
-      title: "Premium Product | Shree E-Commerce",
+      title: "Premium Product | Dewkit Premium Skincare",
     };
   }
 }

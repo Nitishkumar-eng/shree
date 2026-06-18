@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#1E3A8A",
+    color: "#BE185D", // Dewkit Rose
   },
   gstin: {
     fontSize: 9,
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#F3F4F6",
+    backgroundColor: "#FFF0F6", // Dewkit Pink Soft
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
     paddingVertical: 6,
@@ -117,20 +117,20 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 6,
     borderTopWidth: 1,
-    borderTopColor: "#1E3A8A",
+    borderTopColor: "#BE185D",
     marginTop: 4,
-    backgroundColor: "#EFF6FF",
+    backgroundColor: "#FFE4E6", // Rose soft light
     paddingHorizontal: 4,
   },
   netTotalLabel: {
     fontSize: 10,
     fontWeight: "bold",
-    color: "#1E3A8A",
+    color: "#BE185D",
   },
   netTotalValue: {
     fontSize: 10,
     fontWeight: "bold",
-    color: "#1E3A8A",
+    color: "#BE185D",
   },
   footer: {
     position: "absolute",
@@ -167,7 +167,7 @@ export const InvoicePDF: React.FC<InvoicePDFProps> = ({ order, isIntraState }) =
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>SHREE E-COMMERCE</Text>
+            <Text style={styles.title}>DEWKIT SKINCARE</Text>
             <Text style={styles.gstin}>GSTIN: {sellerGstin}</Text>
           </View>
           <View style={styles.invoiceDetails}>
@@ -182,7 +182,7 @@ export const InvoicePDF: React.FC<InvoicePDFProps> = ({ order, isIntraState }) =
         <View style={styles.addresses}>
           <View style={styles.addressBox}>
             <Text style={styles.addressTitle}>Sold By</Text>
-            <Text style={styles.addressText}>Shree Retail Private Limited</Text>
+            <Text style={styles.addressText}>Dewkit Skincare Private Limited</Text>
             <Text style={styles.addressText}>45, Outer Ring Road, HSR Layout</Text>
             <Text style={styles.addressText}>Bengaluru, Karnataka - 560102</Text>
             <Text style={styles.addressText}>India</Text>
@@ -282,7 +282,7 @@ export const InvoicePDF: React.FC<InvoicePDFProps> = ({ order, isIntraState }) =
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>This is a computer-generated tax invoice and does not require signature.</Text>
-          <Text style={[styles.footerText, { marginTop: 4 }]}>Thank you for shopping with Shree!</Text>
+          <Text style={[styles.footerText, { marginTop: 4 }]}>Thank you for shopping with Dewkit!</Text>
         </View>
       </Page>
     </Document>

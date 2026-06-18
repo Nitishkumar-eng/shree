@@ -67,7 +67,7 @@ function LoginContent() {
     <div className="flex items-center justify-center min-h-[70vh] py-10">
       <div className="w-full max-w-md glass-card rounded-2xl p-8 border border-slate-800">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold tracking-tight text-white">Sign In to Shree</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-white">Sign In to Dewkit</h2>
           <p className="text-xs text-slate-500 mt-1.5">Welcome back! Access your cart and track your orders</p>
         </div>
 

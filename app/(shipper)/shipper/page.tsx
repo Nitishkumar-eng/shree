@@ -41,6 +41,7 @@ export default function ShipperPage() {
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
   const [notesInputs, setNotesInputs] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => { fetchOrders(); }, []);
 
@@ -68,7 +69,19 @@ export default function ShipperPage() {
     SHIPPED: "DELIVERED",
   };
 
-  const filtered = filter === "ALL" ? orders : orders.filter(o => o.status === filter);
+  const filtered = orders.filter(o => {
+    const matchesStatus = filter === "ALL" || o.status === filter;
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return matchesStatus;
+    return matchesStatus && (
+      o.id.toLowerCase().includes(q) ||
+      o.address.city.toLowerCase().includes(q) ||
+      o.address.state.toLowerCase().includes(q) ||
+      o.address.pincode.includes(q) ||
+      o.address.name.toLowerCase().includes(q)
+    );
+  });
+
   const stats = {
     total: orders.length,
     processing: orders.filter(o => o.status === "PROCESSING").length,
@@ -94,11 +107,22 @@ export default function ShipperPage() {
         ))}
       </div>
 
-      {/* Filter Tabs */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
-        {["ALL", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED"].map(s => (
-          <button key={s} onClick={() => setFilter(s)} style={{ padding: "8px 20px", borderRadius: "999px", border: "none", cursor: "pointer", fontWeight: 700, fontSize: "13px", background: filter === s ? "#e11d48" : "#fce7f3", color: filter === s ? "#fff" : "#be185d", transition: "all 0.2s" }}>{s}</button>
-        ))}
+      {/* Filter Tabs & Search */}
+      <div style={{ display: "flex", gap: "16px", marginBottom: "20px", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+          {["ALL", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED"].map(s => (
+            <button key={s} onClick={() => setFilter(s)} style={{ padding: "8px 20px", borderRadius: "999px", border: "none", cursor: "pointer", fontWeight: 700, fontSize: "13px", background: filter === s ? "#e11d48" : "#fce7f3", color: filter === s ? "#fff" : "#be185d", transition: "all 0.2s" }}>{s}</button>
+          ))}
+        </div>
+        <div style={{ flex: "1", maxWidth: "350px", minWidth: "200px" }}>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="🔍 Search City, Pincode, State or Name..."
+            style={{ width: "100%", padding: "8px 16px", borderRadius: "999px", border: "1px solid #fbcfe8", fontSize: "13px", outline: "none", color: "#881337", boxSizing: "border-box" }}
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -106,7 +130,7 @@ export default function ShipperPage() {
       ) : filtered.length === 0 ? (
         <div style={{ textAlign: "center", padding: "60px", color: "#9c4060", background: "#fff0f6", borderRadius: "16px", border: "1px solid #fbcfe8" }}>
           <div style={{ fontSize: "48px", marginBottom: "12px" }}>📭</div>
-          <p>No orders in this status.</p>
+          <p>No orders found matching the filter or search term.</p>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -128,7 +152,11 @@ export default function ShipperPage() {
                   <h4 style={{ margin: "0 0 10px", color: "#be185d", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>👤 Customer</h4>
                   <p style={{ margin: "0 0 4px", fontWeight: 700, color: "#1f0a10" }}>{order.user.name}</p>
                   <p style={{ margin: "0 0 2px", fontSize: "13px", color: "#5c2033" }}>{order.user.email}</p>
-                  <p style={{ margin: 0, fontSize: "13px", color: "#5c2033" }}>{order.address.phone}</p>
+                  <p style={{ margin: 0, fontSize: "13px" }}>
+                    <a href={`tel:${order.address.phone}`} style={{ color: "#e11d48", fontWeight: 700, textDecoration: "none" }}>
+                      📞 {order.address.phone}
+                    </a>
+                  </p>
                 </div>
 
                 {/* Shipping Address */}

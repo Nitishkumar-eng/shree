@@ -132,6 +132,34 @@ export async function GET() {
       take: 5,
     });
 
+    // 5. Shipping Metrics & Recent Shipments
+    const shippingCounts = {
+      pending: await db.order.count({ where: { status: "PENDING" } }),
+      confirmed: await db.order.count({ where: { status: "CONFIRMED" } }),
+      processing: await db.order.count({ where: { status: "PROCESSING" } }),
+      shipped: await db.order.count({ where: { status: "SHIPPED" } }),
+      delivered: await db.order.count({ where: { status: "DELIVERED" } }),
+    };
+
+    const recentShipments = await db.order.findMany({
+      where: {
+        status: {
+          in: ["CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED"]
+        }
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          }
+        },
+        address: true,
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 8,
+    });
+
     return NextResponse.json({
       metrics: {
         totalRevenue: Math.round(totalRevenue * 100) / 100,
@@ -149,6 +177,24 @@ export async function GET() {
         size: v.size,
         color: v.color,
         stock: v.stockQuantity,
+      })),
+      shippingCounts,
+      recentShipments: recentShipments.map((s) => ({
+        id: s.id,
+        status: s.status,
+        total: s.total,
+        trackingNumber: s.trackingNumber,
+        createdAt: s.createdAt,
+        updatedAt: s.updatedAt,
+        latitude: s.latitude,
+        longitude: s.longitude,
+        locationCity: s.locationCity,
+        locationState: s.locationState,
+        customerName: s.user.name,
+        city: s.address.city,
+        state: s.address.state,
+        pincode: s.address.pincode,
+        street: s.address.street,
       })),
     });
   } catch (error) {

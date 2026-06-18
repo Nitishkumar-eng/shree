@@ -60,7 +60,7 @@ export async function POST(req: Request) {
   let userId: string = "mock-user-id";
   let addressId: string = "mock-address-id";
   let userName: string = "Admin User";
-  let userEmail: string = "admin@shree.com";
+  let userEmail: string = "admin@dewkit.in";
   let reqPaymentMethod: string = "ONLINE";
   let reqCouponCode: string | null = null;
   try {
@@ -71,7 +71,7 @@ export async function POST(req: Request) {
 
     userId = (session.user as any).id;
     userName = session.user.name || "Admin User";
-    userEmail = session.user.email || "admin@shree.com";
+    userEmail = session.user.email || "admin@dewkit.in";
     const body = await req.json();
     const parsed = createOrderSchema.parse(body);
     addressId = parsed.addressId;
@@ -303,8 +303,8 @@ export async function POST(req: Request) {
           images: ["https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&auto=format&fit=crop&q=60"],
           product: {
             id: "razorpay-test-product",
-            name: "Shree Razorpay Test Token",
-            brand: "Shree"
+            name: "Dewkit Razorpay Test Token",
+            brand: "Dewkit"
           }
         }
       }

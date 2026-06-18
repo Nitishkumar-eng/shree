@@ -41,7 +41,7 @@ export default function WishlistPage() {
     if (!session) {
       // Guest Wishlist from localStorage
       try {
-        const guestWish = JSON.parse(localStorage.getItem("shree-guest-wishlist") || "[]");
+        const guestWish = JSON.parse(localStorage.getItem("dewkit-guest-wishlist") || "[]");
         if (guestWish.length === 0) {
           setWishlistItems([]);
           setLoading(false);
@@ -103,7 +103,7 @@ export default function WishlistPage() {
   useEffect(() => {
     const mergeWishlist = async () => {
       if (session) {
-        const guestWish = JSON.parse(localStorage.getItem("shree-guest-wishlist") || "[]");
+        const guestWish = JSON.parse(localStorage.getItem("dewkit-guest-wishlist") || "[]");
         if (guestWish.length > 0) {
           try {
             for (const pid of guestWish) {
@@ -113,7 +113,7 @@ export default function WishlistPage() {
                 body: JSON.stringify({ productId: pid }),
               });
             }
-            localStorage.removeItem("shree-guest-wishlist");
+            localStorage.removeItem("dewkit-guest-wishlist");
             toast("Merged your guest wishlist into your account wishlist", "success");
             fetchWishlist();
           } catch (e) {
@@ -129,11 +129,11 @@ export default function WishlistPage() {
   const handleRemove = async (productId: string) => {
     if (!session) {
       try {
-        const guestWish = JSON.parse(localStorage.getItem("shree-guest-wishlist") || "[]");
+        const guestWish = JSON.parse(localStorage.getItem("dewkit-guest-wishlist") || "[]");
         const filtered = guestWish.filter((id: string) => id !== productId);
-        localStorage.setItem("shree-guest-wishlist", JSON.stringify(filtered));
+        localStorage.setItem("dewkit-guest-wishlist", JSON.stringify(filtered));
         toast("Removed item from wishlist", "success");
-        window.dispatchEvent(new Event("shree-cart-update"));
+        window.dispatchEvent(new Event("dewkit-cart-update"));
         fetchWishlist();
       } catch {
         toast("Failed to remove item", "error");
@@ -147,7 +147,7 @@ export default function WishlistPage() {
       });
       if (res.ok) {
         fetchWishlist();
-        window.dispatchEvent(new Event("shree-cart-update"));
+        window.dispatchEvent(new Event("dewkit-cart-update"));
         toast("Removed item from wishlist", "success");
       } else {
         toast("Failed to remove item", "error");
@@ -170,7 +170,7 @@ export default function WishlistPage() {
     try {
       if (!session) {
         // Guest Cart
-        const guestCart = JSON.parse(localStorage.getItem("shree-guest-cart") || "[]");
+        const guestCart = JSON.parse(localStorage.getItem("dewkit-guest-cart") || "[]");
         const existing = guestCart.find((i: any) => i.productVariantId === variant.id);
         if (!existing) {
           guestCart.push({
@@ -184,16 +184,16 @@ export default function WishlistPage() {
             brand: item.product.brand,
             stockQuantity: variant.stockQuantity,
           });
-          localStorage.setItem("shree-guest-cart", JSON.stringify(guestCart));
+          localStorage.setItem("dewkit-guest-cart", JSON.stringify(guestCart));
         }
         
         // Remove from Guest Wishlist
-        const guestWish = JSON.parse(localStorage.getItem("shree-guest-wishlist") || "[]");
+        const guestWish = JSON.parse(localStorage.getItem("dewkit-guest-wishlist") || "[]");
         const filteredWish = guestWish.filter((id: string) => id !== item.productId);
-        localStorage.setItem("shree-guest-wishlist", JSON.stringify(filteredWish));
+        localStorage.setItem("dewkit-guest-wishlist", JSON.stringify(filteredWish));
         
         toast("Moved item to cart", "success");
-        window.dispatchEvent(new Event("shree-cart-update"));
+        window.dispatchEvent(new Event("dewkit-cart-update"));
         fetchWishlist();
         return;
       }
@@ -210,7 +210,7 @@ export default function WishlistPage() {
           method: "DELETE",
         });
         toast("Moved item to cart", "success");
-        window.dispatchEvent(new Event("shree-cart-update"));
+        window.dispatchEvent(new Event("dewkit-cart-update"));
         fetchWishlist();
       }
     } catch {

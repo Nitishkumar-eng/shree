@@ -4,11 +4,11 @@ import { ArrowRight, ShieldCheck, Zap, Truck, BadgePercent } from "lucide-react"
 import { db } from "@/lib/db";
 import { formatINR } from "@/lib/gst";
 import { mockDbStore } from "@/lib/mockDbStore";
+import { unstable_cache } from "next/cache";
 
-// Server side data fetching for home page
-async function getFeaturedProducts() {
-  try {
-    const products = await db.product.findMany({
+const getCachedFeaturedProductsList = unstable_cache(
+  async () => {
+    return db.product.findMany({
       where: { isActive: true },
       include: {
         variants: true,
@@ -18,6 +18,15 @@ async function getFeaturedProducts() {
       },
       take: 4,
     });
+  },
+  ["featured-skincare-products"],
+  { revalidate: 60, tags: ["products"] }
+);
+
+// Server side data fetching for home page
+async function getFeaturedProducts() {
+  try {
+    const products = await getCachedFeaturedProductsList();
 
     return products.map((p) => {
       const avgRating = p.reviews.length
@@ -100,13 +109,13 @@ export default async function HomePage() {
             <BadgePercent size={14} /> Monsoon Sale: Flat 10% Off
           </span>
           <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight">
-            Indian Engineering. <br />
-            <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-500 bg-clip-text text-transparent">
-              Acoustic & Tech Excellence
+            Glowing Skincare. <br />
+            <span className="bg-gradient-to-r from-rose-400 via-pink-400 to-violet-500 bg-clip-text text-transparent">
+              Natural Ingredients
             </span>
           </h1>
           <p className="text-slate-400 text-sm md:text-base max-w-lg leading-relaxed">
-            Experience the next level of sound and craftsmanship. Designed for India, featuring deep bass response, custom size profiles, and GST invoices for easy tax write-offs.
+            Experience premium, dermatologist-tested skincare designed specifically for Indian skin types. Formulated with natural botanical extracts, active vitamins, and zero harmful chemicals.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <Link
@@ -116,10 +125,10 @@ export default async function HomePage() {
               Shop Catalog <ArrowRight size={16} />
             </Link>
             <Link
-              href="/products?category=audio"
+              href="/products?category=toners"
               className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold py-3 px-6 rounded-xl transition-colors text-sm"
             >
-              Explore Audio
+              Explore Toners
             </Link>
           </div>
         </div>
@@ -127,15 +136,15 @@ export default async function HomePage() {
         {/* Hero Visual Banner (High Quality Unsplash Asset) */}
         <div className="flex-1 w-full md:w-auto relative aspect-video md:aspect-square rounded-2xl overflow-hidden group shadow-2xl border border-slate-800">
           <img
-            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop&q=80"
-            alt="Shree Premium Products"
+            src="https://images.unsplash.com/photo-1601049541271-f6b2c7e8e17c?w=800&auto=format&fit=crop&q=80"
+            alt="Dewkit Premium Skincare"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-6">
             <div>
               <p className="text-xs text-indigo-400 font-bold uppercase tracking-wider">Top Seller</p>
-              <h3 className="text-lg font-bold text-white">Shree Strider Crimson</h3>
-              <p className="text-xs text-slate-300">Starting from ₹2,499 (Inclusive of 12% GST)</p>
+              <h3 className="text-lg font-bold text-white">Dewkit Glow Serum</h3>
+              <p className="text-xs text-slate-300">Starting from ₹899 (Inclusive of 18% GST)</p>
             </div>
           </div>
         </div>
@@ -189,34 +198,34 @@ export default async function HomePage() {
         <h2 className="text-2xl font-bold tracking-tight">Explore Categories</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link
-            href="/products?category=audio"
+            href="/products?category=serums"
             className="group relative h-64 rounded-2xl overflow-hidden border border-slate-800/80 shadow-lg"
           >
             <img
-              src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&auto=format&fit=crop&q=80"
-              alt="Audio Equipment"
+              src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&auto=format&fit=crop&q=80"
+              alt="Skincare Serums"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent flex flex-col justify-end p-6 md:p-8">
-              <span className="text-xs text-indigo-400 font-bold uppercase tracking-widest">Acoustic Series</span>
-              <h3 className="text-xl font-bold text-white mt-1">Premium Audio</h3>
-              <p className="text-xs text-slate-400 mt-1 max-w-xs">ANC headphones and Bluetooth speakers engineered with deep bass profiles.</p>
+              <span className="text-xs text-indigo-400 font-bold uppercase tracking-widest">Active Focus</span>
+              <h3 className="text-xl font-bold text-white mt-1">Serums & Treatments</h3>
+              <p className="text-xs text-slate-400 mt-1 max-w-xs">Brightening Vitamin C serums and niacinamide concentrates to reveal your natural glow.</p>
             </div>
           </Link>
 
           <Link
-            href="/products?category=shoes"
+            href="/products?category=moisturizers"
             className="group relative h-64 rounded-2xl overflow-hidden border border-slate-800/80 shadow-lg"
           >
             <img
-              src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800&auto=format&fit=crop&q=80"
-              alt="Footwear Series"
+              src="https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=800&auto=format&fit=crop&q=80"
+              alt="Skincare Creams"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent flex flex-col justify-end p-6 md:p-8">
-              <span className="text-xs text-indigo-400 font-bold uppercase tracking-widest">Apparel Series</span>
-              <h3 className="text-xl font-bold text-white mt-1">Footwear & Fashion</h3>
-              <p className="text-xs text-slate-400 mt-1 max-w-xs">Ultra-cushioned sports striders and responsive trail running shoes.</p>
+              <span className="text-xs text-indigo-400 font-bold uppercase tracking-widest">Deep Hydration</span>
+              <h3 className="text-xl font-bold text-white mt-1">Moisturizers & Cleansers</h3>
+              <p className="text-xs text-slate-400 mt-1 max-w-xs">Daily creams and pH-balanced rose face washes to restore your natural skin barrier.</p>
             </div>
           </Link>
         </div>

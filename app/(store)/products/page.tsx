@@ -128,7 +128,7 @@ function ProductsCatalog() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-900/60 pb-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Shree Catalog</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Dewkit Catalog</h1>
           <p className="text-xs text-slate-500 mt-1">Showing {products.length} of {total} products matching your criteria</p>
         </div>
 
@@ -190,9 +190,14 @@ function ProductsCatalog() {
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Category</label>
             <div className="flex flex-col gap-1.5 text-xs">
               {[
-                { name: "All Categories", slug: "" },
-                { name: "Electronics & Audio", slug: "audio" },
-                { name: "Fashion & Shoes", slug: "shoes" },
+                { name: "All Skincare", slug: "" },
+                { name: "Serums & Treatments", slug: "serums" },
+                { name: "Moisturizers", slug: "moisturizers" },
+                { name: "Cleansers", slug: "cleansers" },
+                { name: "Sun Protection", slug: "sunprotection" },
+                { name: "Masks & Exfoliants", slug: "masks" },
+                { name: "Eye Care", slug: "eyecare" },
+                { name: "Toners", slug: "toners" },
               ].map((cat) => (
                 <button
                   key={cat.slug}
@@ -256,7 +261,7 @@ function ProductsCatalog() {
               className="bg-slate-900 border border-slate-800 rounded-lg py-1.5 px-3 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
             >
               <option value="">All Brands</option>
-              <option value="Shree">Shree</option>
+              <option value="Dewkit">Dewkit</option>
             </select>
           </div>
         </aside>
@@ -408,8 +413,13 @@ function ProductsCatalog() {
                   className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs text-slate-300"
                 >
                   <option value="">All Categories</option>
-                  <option value="audio">Audio Equipment</option>
-                  <option value="shoes">Footwear</option>
+                  <option value="serums">Serums & Treatments</option>
+                  <option value="moisturizers">Moisturizers</option>
+                  <option value="cleansers">Cleansers</option>
+                  <option value="sunprotection">Sun Protection</option>
+                  <option value="masks">Masks & Exfoliants</option>
+                  <option value="eyecare">Eye Care</option>
+                  <option value="toners">Toners</option>
                 </select>
               </div>
 
